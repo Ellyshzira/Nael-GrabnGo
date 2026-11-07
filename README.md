@@ -1,4 +1,4 @@
-# Nael Snacks Bar — Stock & Cash-Flow App
+# Nael GrabnGo — Stock & Cash-Flow App
 
 A phone app for both partners to record **stock checks** and **money (cash flow)** for the drinks & snacks boxes at Office, Tasik Cyberjaya and Putrajaya.
 
@@ -26,7 +26,7 @@ grabngo/
 
 ## Step 1 — Create the Google Sheet backend (about 10 minutes, use a laptop once)
 
-1. Go to **sheets.google.com** → create a **Blank spreadsheet**. Name it `Nael Snacks Bar Data`.
+1. Go to **sheets.google.com** → create a **Blank spreadsheet**. Name it `Nael GrabnGo Data`.
 2. Menu **Extensions → Apps Script**. A code editor opens.
 3. Delete everything in `Code.gs`, then paste the whole content of `apps-script/Code.gs`.
 4. On line 10, change `const APP_PIN = '1234';` to your own PIN (e.g. `'738241'`). Only you and your partner should know it.
