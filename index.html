@@ -3,39 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#441d0b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GrabnGo">
+<meta name="apple-mobile-web-app-title" content="Nael">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>GrabnGo</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<title>Nael Snacks Bar</title>
 <style>
-:root{--bg:#f3f6f5;--card:#fff;--ink:#13201c;--mute:#6b7a76;--line:#e2e8e6;--brand:#0f766e;--brand2:#14b8a6;--soft:#e4f3f0;--good:#15803d;--goodbg:#dcfce7;--warn:#b45309;--warnbg:#fef3c7;--bad:#b91c1c;--badbg:#fee2e2;--r:16px}
-@media (prefers-color-scheme:dark){:root{--bg:#0c1311;--card:#151f1c;--ink:#e7efec;--mute:#93a39e;--line:#24322e;--soft:#11302a;--goodbg:#12331f;--warnbg:#3a2a0c;--badbg:#3b1414;--good:#4ade80;--warn:#fbbf24;--bad:#f87171}}
+:root{--bg:#fdf6ec;--card:#fffaf3;--ink:#3b1a0a;--mute:#8a6650;--line:#f0dcc0;--brand:#441d0b;--brand2:#a8693d;--accent:#dc9957;--tan:#ecbf8e;--soft:#f8e6cc;--onbrand:#fcebd4;--good:#3f7a2e;--goodbg:#e4f0d6;--warn:#a85d0c;--warnbg:#fde9c8;--bad:#b3261e;--badbg:#fbe0dc;--r:18px;--ring:rgba(168,105,61,.25)}
+@media (prefers-color-scheme:dark){:root{--bg:#1a100a;--card:#26170e;--ink:#fcebd4;--mute:#c4a58a;--line:#3e2a1c;--brand:#dc9957;--brand2:#a8693d;--soft:#3a2416;--onbrand:#2a1007;--goodbg:#1e3016;--warnbg:#3d2a0e;--badbg:#3e1712;--good:#9ccc7a;--warn:#f0b85c;--bad:#f28b82}}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-header{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
-header h1{font-size:17px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pill{font:inherit;font-size:12px;padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.18);border:0;color:#fff;cursor:pointer}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Nunito,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:5;background:#441d0b;color:#fcebd4;padding:calc(8px + env(safe-area-inset-top)) 14px 8px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(68,29,11,.25)}
+header img{width:42px;height:42px;flex:0 0 42px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
+header h1{font:600 19px/1.1 Fredoka,Nunito,sans-serif;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px}
+header h1 small{display:block;font:600 10px Nunito,sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.pill{font:inherit;font-size:12px;font-weight:700;padding:5px 11px;border-radius:99px;background:rgba(252,235,212,.16);border:1px solid rgba(252,235,212,.25);color:#fcebd4;cursor:pointer}
 main{padding:14px 14px calc(96px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:6}
 nav a{flex:1;text-align:center;padding:7px 0 6px;color:var(--mute);text-decoration:none;font-size:11px}
 nav a span{display:block;font-size:21px;line-height:1.25;filter:grayscale(1);opacity:.7}
-nav a.on{color:var(--brand);font-weight:700}
+nav a.on{color:var(--brand2);font-weight:800}
 nav a.on span{filter:none;opacity:1}
 .card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--line)}
-.hero{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border:0}
+.hero{background:linear-gradient(135deg,#5a2810 0%,#a8693d 60%,#dc9957 100%);color:#fcebd4;border:0;box-shadow:0 8px 22px rgba(68,29,11,.22);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;border:2px dashed rgba(252,235,212,.18)}
 .hero small{opacity:.85}
-.big{font-size:32px;font-weight:800;letter-spacing:-.5px}
+.big{font:700 34px/1.15 Fredoka,Nunito,sans-serif;letter-spacing:-.3px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .stat small{color:var(--mute);display:block;font-size:12px}
-.hero .stat small{color:#fff;opacity:.85}
+.hero .stat small{color:#fcebd4;opacity:.85}
 .stat b{font-size:17px}
 h2{margin:20px 4px 8px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-size:12px}
-h3{margin:0 0 8px;font-size:16px}
+h3{margin:0 0 8px;font:600 17px Fredoka,Nunito,sans-serif}
 .row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
 .tap{cursor:pointer}
@@ -43,26 +49,26 @@ h3{margin:0 0 8px;font-size:16px}
 .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .muted{color:var(--mute);font-size:13px}
 .right{text-align:right}
-.btn{appearance:none;border:0;border-radius:12px;padding:12px 16px;font:inherit;font-weight:700;background:var(--brand);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn{appearance:none;border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:800;background:var(--brand);color:var(--onbrand);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn:active{transform:scale(.98)}
 .btn.block{width:100%}
-.btn.ghost{background:var(--soft);color:var(--brand)}
+.btn.ghost{background:var(--soft);color:var(--ink)}
 .btn.danger{background:var(--badbg);color:var(--bad)}
 .btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
 .stack>*+*{margin-top:8px}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
 .chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 14px;font:inherit;font-size:14px;white-space:nowrap;cursor:pointer}
-.chip.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.chip.on{background:var(--brand);border-color:var(--brand);color:var(--onbrand);font-weight:700}
 .typegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .typegrid .chip{border-radius:12px;padding:10px 4px;font-size:13px;text-align:center;white-space:normal}
 .typegrid .chip span{display:block;font-size:20px}
 label.f{display:block;margin:12px 0 5px;font-size:13px;color:var(--mute);font-weight:600}
 input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 3px rgba(20,184,166,.18)}
+input:focus,select:focus,textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 3px var(--ring)}
 .check{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px}
-.check input{width:22px;height:22px;accent-color:var(--brand)}
+.check input{width:22px;height:22px;accent-color:var(--brand2)}
 .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
-.stepper button{flex:0 0 42px;height:44px;border:0;background:var(--soft);color:var(--brand);font-size:22px;font-weight:700;cursor:pointer}
+.stepper button{flex:0 0 42px;height:44px;border:0;background:var(--soft);color:var(--brand2);font-size:22px;font-weight:700;cursor:pointer}
 .stepper input{border:0;border-radius:0;text-align:center;padding:0;height:44px;min-width:0;font-weight:700;box-shadow:none}
 .prow .ptop{display:flex;gap:10px;align-items:flex-start}
 .prow label.f{margin-top:10px}
@@ -73,28 +79,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--brand2);box-shadow:0 
 .b-mute{background:var(--soft);color:var(--mute)}
 .in{color:var(--good);font-weight:700}
 .out{color:var(--bad);font-weight:700}
-.fab{position:fixed;right:16px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:7;border-radius:99px;padding:14px 20px;box-shadow:0 8px 20px rgba(15,118,110,.35)}
-.bar{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));z-index:4;background:var(--ink);color:var(--card);border-radius:14px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.18)}
-.bar b{font-size:17px}
+.fab{position:fixed;right:16px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:7;border-radius:99px;padding:14px 20px;box-shadow:0 8px 20px rgba(68,29,11,.35)}
+.bar{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));z-index:4;background:#441d0b;color:#fcebd4;border-radius:14px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.bar b{font:600 18px Fredoka,Nunito,sans-serif}
 .sheet{position:fixed;inset:0;z-index:20}
 .sheet.hidden{display:none}
 .sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
 .sheet-body{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;padding:8px 16px calc(22px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto;animation:up .22s ease}
 .grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 12px}
 @keyframes up{from{transform:translateY(50px);opacity:0}}
-#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw;text-align:center}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:#441d0b;color:#fcebd4;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;color:var(--mute);padding:26px 10px}
 .empty span{font-size:34px;display:block}
 .bal{display:flex;justify-content:space-between;padding:4px 0}
 .note{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--ink);margin-top:10px}
 .tips li{margin:0 0 8px}
+.welcome-logo{display:block;width:170px;height:170px;margin:4px auto 6px}
+.foot-logo{display:block;width:90px;margin:10px auto 0;opacity:.9}
+h2{font-family:Nunito,sans-serif;font-weight:800}
 .loccard{display:flex;gap:12px;align-items:center}
-.locicon{width:44px;height:44px;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 44px}
+.locicon{width:44px;height:44px;border-radius:14px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 44px}
 </style>
 </head>
 <body>
-<header><h1 id="title">GrabnGo</h1><button class="pill" id="syncPill" data-act="syncNow">…</button></header>
+<header><img src="logo.png" alt=""><h1><span id="title">Nael Snacks Bar</span><small>Good snacks, good day</small></h1><button class="pill" id="syncPill" data-act="syncNow">…</button></header>
 <main id="view"></main>
 <nav id="tabs">
   <a href="#home" data-r="home"><span>🏠</span>Home</a>
@@ -236,7 +245,7 @@ function seedRows() {
     ['2026-08-17','tasik','Sales 17/8','Sales Deposit',35,B,'',''],
     ['2026-08-18','office','Sales 18/8','Sales Deposit',3,B,'','']
   ].map((r, i) => ({id:'old-' + (i+1), date:r[0], locationId:r[1], item:r[2], type:r[3], amount:r[4], paidUsing:r[5], paidBy:r[6], notes:r[7], visitId:'', deleted:false}));
-  const S = [{id:'businessName', value:'Nael GrabnGo'}, {id:'people', value:'Lysa,Meo'}];
+  const S = [{id:'businessName', value:'Nael Snacks Bar'}, {id:'people', value:'Lysa,Meo'}];
   return {Locations:L, Products:P, Money:M, Settings:S};
 }
 function loadSeedLocal() {
@@ -271,7 +280,7 @@ function saveMany(list) {
 
 const setting = (k, d) => { const r = data.Settings.find(s => s.id === k); return (r && r.value !== '') ? r.value : d; };
 const people = () => String(setting('people', 'Lysa,Meo')).split(',').map(s => s.trim()).filter(Boolean);
-const bizName = () => setting('businessName', 'Nael GrabnGo');
+const bizName = () => setting('businessName', 'Nael Snacks Bar');
 const me = () => cfg.me || people()[0] || '';
 const allLocs = () => data.Locations.filter(l => !l.deleted);
 const activeLocs = () => allLocs().filter(l => l.active !== false);
@@ -682,7 +691,7 @@ VIEWS.more = () => {
     <li><b>Pay partners back</b> with Reimbursement when the account has enough money.</li>
     <li><b>Watch the “paid %”</b> on Home. If a location drops below ~85%, move the box, add a clearer QR/price poster, or sell only higher-margin items there.</li>
   </ol></div>
-  <p class="muted" style="text-align:center">GrabnGo app · v1.0</p>`;
+  <img class="foot-logo" src="logo.png" alt=""><p class="muted" style="text-align:center">Nael Snacks Bar app · v1.1</p>`;
 };
 
 /* =================== ACTIONS =================== */
@@ -774,7 +783,7 @@ const ACT = {
     saveMany(ops); toast('Importing ' + ops.length + ' records…'); render();
   },
   saveBiz() {
-    const name = $('#sBiz').value.trim() || 'Nael GrabnGo';
+    const name = $('#sBiz').value.trim() || 'Nael Snacks Bar';
     const ppl = $('#sPeople').value.split(',').map(s => s.trim()).filter(Boolean).join(',');
     saveMany([['Settings', {id: 'businessName', value: name}], ['Settings', {id: 'people', value: ppl || 'Lysa,Meo'}]]);
     render(); toast('Saved ✓');
@@ -832,7 +841,7 @@ if (!data) { data = emptyData(); if (isDemo()) loadSeedLocal(); }
 TABLES.forEach(t => { if (!Array.isArray(data[t])) data[t] = []; });
 render();
 if (!cfg.me) {
-  openSheet(`<h3>👋 Welcome to ${esc(bizName())}</h3><p class="muted">Who is using this phone? (You can change this later in More.)</p>
+  openSheet(`<img class="welcome-logo" src="logo.png" alt=""><h3 style="text-align:center">Welcome to ${esc(bizName())}</h3><p class="muted">Who is using this phone? (You can change this later in More.)</p>
     <div class="stack">${people().map(p => `<button class="btn block" data-act="setMe" data-k="${esc(p)}">I'm ${esc(p)}</button>`).join('')}</div>
     ${isDemo() ? '<div class="note">You are in <b>demo mode</b> with your old Excel data loaded. Connect your Google Sheet in <b>More</b> when ready.</div>' : ''}`);
 }
