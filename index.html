@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GrabnGo">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>GrabnGo</title>
+<style>
+:root{--bg:#f3f6f5;--card:#fff;--ink:#13201c;--mute:#6b7a76;--line:#e2e8e6;--brand:#0f766e;--brand2:#14b8a6;--soft:#e4f3f0;--good:#15803d;--goodbg:#dcfce7;--warn:#b45309;--warnbg:#fef3c7;--bad:#b91c1c;--badbg:#fee2e2;--r:16px}
+@media (prefers-color-scheme:dark){:root{--bg:#0c1311;--card:#151f1c;--ink:#e7efec;--mute:#93a39e;--line:#24322e;--soft:#11302a;--goodbg:#12331f;--warnbg:#3a2a0c;--badbg:#3b1414;--good:#4ade80;--warn:#fbbf24;--bad:#f87171}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{font:inherit;font-size:12px;padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.18);border:0;color:#fff;cursor:pointer}
+main{padding:14px 14px calc(96px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav a{flex:1;text-align:center;padding:7px 0 6px;color:var(--mute);text-decoration:none;font-size:11px}
+nav a span{display:block;font-size:21px;line-height:1.25;filter:grayscale(1);opacity:.7}
+nav a.on{color:var(--brand);font-weight:700}
+nav a.on span{filter:none;opacity:1}
+.card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--line)}
+.hero{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border:0}
+.hero small{opacity:.85}
+.big{font-size:32px;font-weight:800;letter-spacing:-.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stat small{color:var(--mute);display:block;font-size:12px}
+.hero .stat small{color:#fff;opacity:.85}
+.stat b{font-size:17px}
+h2{margin:20px 4px 8px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-size:12px}
+h3{margin:0 0 8px;font-size:16px}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.tap{cursor:pointer}
+.grow{flex:1;min-width:0}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.muted{color:var(--mute);font-size:13px}
+.right{text-align:right}
+.btn{appearance:none;border:0;border-radius:12px;padding:12px 16px;font:inherit;font-weight:700;background:var(--brand);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:active{transform:scale(.98)}
+.btn.block{width:100%}
+.btn.ghost{background:var(--soft);color:var(--brand)}
+.btn.danger{background:var(--badbg);color:var(--bad)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.stack>*+*{margin-top:8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 14px;font:inherit;font-size:14px;white-space:nowrap;cursor:pointer}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.typegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.typegrid .chip{border-radius:12px;padding:10px 4px;font-size:13px;text-align:center;white-space:normal}
+.typegrid .chip span{display:block;font-size:20px}
+label.f{display:block;margin:12px 0 5px;font-size:13px;color:var(--mute);font-weight:600}
+input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 3px rgba(20,184,166,.18)}
+.check{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px}
+.check input{width:22px;height:22px;accent-color:var(--brand)}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.stepper button{flex:0 0 42px;height:44px;border:0;background:var(--soft);color:var(--brand);font-size:22px;font-weight:700;cursor:pointer}
+.stepper input{border:0;border-radius:0;text-align:center;padding:0;height:44px;min-width:0;font-weight:700;box-shadow:none}
+.prow .ptop{display:flex;gap:10px;align-items:flex-start}
+.prow label.f{margin-top:10px}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.b-good{background:var(--goodbg);color:var(--good)}
+.b-warn{background:var(--warnbg);color:var(--warn)}
+.b-bad{background:var(--badbg);color:var(--bad)}
+.b-mute{background:var(--soft);color:var(--mute)}
+.in{color:var(--good);font-weight:700}
+.out{color:var(--bad);font-weight:700}
+.fab{position:fixed;right:16px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:7;border-radius:99px;padding:14px 20px;box-shadow:0 8px 20px rgba(15,118,110,.35)}
+.bar{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));z-index:4;background:var(--ink);color:var(--card);border-radius:14px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.bar b{font-size:17px}
+.sheet{position:fixed;inset:0;z-index:20}
+.sheet.hidden{display:none}
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.sheet-body{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;padding:8px 16px calc(22px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto;animation:up .22s ease}
+.grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 12px}
+@keyframes up{from{transform:translateY(50px);opacity:0}}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.empty{text-align:center;color:var(--mute);padding:26px 10px}
+.empty span{font-size:34px;display:block}
+.bal{display:flex;justify-content:space-between;padding:4px 0}
+.note{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--ink);margin-top:10px}
+.tips li{margin:0 0 8px}
+.loccard{display:flex;gap:12px;align-items:center}
+.locicon{width:44px;height:44px;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 44px}
+</style>
+</head>
+<body>
+<header><h1 id="title">GrabnGo</h1><button class="pill" id="syncPill" data-act="syncNow">…</button></header>
+<main id="view"></main>
+<nav id="tabs">
+  <a href="#home" data-r="home"><span>🏠</span>Home</a>
+  <a href="#check" data-r="check"><span>📦</span>Stock check</a>
+  <a href="#money" data-r="money"><span>💰</span>Money</a>
+  <a href="#products" data-r="products"><span>🏷️</span>Products</a>
+  <a href="#more" data-r="more"><span>⚙️</span>More</a>
+</nav>
+<div id="sheet" class="sheet hidden"><div class="sheet-bg" data-act="closeSheet"></div><div class="sheet-body"></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   Nael GrabnGo — stock & cash-flow app (PWA)
+   Data lives in your Google Sheet (via Apps Script).
+   Without a connection it runs in DEMO mode on this phone only.
+   ========================================================= */
+
+const TABLES = ['Products','Locations','Visits','Stock','Money','Settings'];
+const NUMS = ['packQty','packCost','extraCost','price','reorderLevel','cash','qr','expected','opening','counted','sold','added','closing','unitCost','amount'];
+const BOOLS = ['active','deleted'];
+const CATEGORIES = ['Drink','Snack','Instant Food','Other'];
+const MTYPES = [
+  {k:'Sales Deposit', i:'💵', hint:'Sales money (cash/QR) that went into the business account.'},
+  {k:'Restock',       i:'🛒', hint:'Buying stock to sell (Eco, 99 Speedmart, wholesaler…).'},
+  {k:'Expense',       i:'🧾', hint:'Other costs: ice, box, poster printing, fees.'},
+  {k:'Reimbursement', i:'↩️', hint:'Business account pays a partner back for money they spent.'},
+  {k:'Capital In',    i:'🏦', hint:'A partner puts own money into the business account.'},
+  {k:'Adjustment',    i:'⚖️', hint:'Make the balance match the bank. Use a minus (−) amount to reduce.'}
+];
+
+/* ---------- small helpers ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+const round = (n, d=2) => Math.round((Number(n)||0) * 10**d) / 10**d;
+const rm = n => { n = round(n); return (n < 0 ? '−' : '') + 'RM' + Math.abs(n).toFixed(2); };
+const sum = (arr, f) => arr.reduce((a, r) => a + (typeof f === 'function' ? f(r) : num(r[f])), 0);
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const pad = n => String(n).padStart(2, '0');
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); };
+const fmtDate = s => { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return isNaN(d) ? s : d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}); };
+const fmtMonth = k => { const d = new Date(k + '-01T00:00:00'); return isNaN(d) ? k : d.toLocaleDateString('en-GB', {month:'long', year:'numeric'}); };
+const daysAgo = s => Math.round((new Date(today() + 'T00:00:00') - new Date(s + 'T00:00:00')) / 86400000);
+const agoText = s => { const n = daysAgo(s); return n <= 0 ? 'today' : n === 1 ? 'yesterday' : n + ' days ago'; };
+
+/* ---------- storage (safe even if localStorage is blocked) ---------- */
+const mem = {};
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('gng_' + k); if (v != null) return JSON.parse(v); } catch (e) {} return (k in mem) ? mem[k] : d; },
+  set(k, v) { mem[k] = v; try { localStorage.setItem('gng_' + k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { delete mem[k]; try { localStorage.removeItem('gng_' + k); } catch (e) {} }
+};
+
+/* ---------- state ---------- */
+const emptyData = () => Object.fromEntries(TABLES.map(t => [t, []]));
+let cfg = store.get('cfg', {apiUrl:'', pin:'', me:''});
+let data = store.get('data', null);
+let queue = store.get('queue', []);
+let sync = {state:'idle', error:'', last: store.get('lastSync', null)};
+let route = location.hash.slice(1) || 'home';
+let sheetOpen = false;
+let moneyFilter = {month: today().slice(0,7), type:'All'};
+let chk = store.get('draft', null) || newCheck('');
+let mf = null, pf = null;   // money form / product form state
+const isDemo = () => !cfg.apiUrl;
+
+function newCheck(loc) { return {loc, date: today(), by: cfg.me || '', lines:{}, cash:'', qr:'', deposit:true, notes:''}; }
+function persist() { store.set('data', data); store.set('queue', queue); }
+function saveDraft() { store.set('draft', chk); }
+
+/* ---------- starter data from your old Excel file ---------- */
+function seedRows() {
+  const L = [['office','Office'],['tasik','Tasik Cyberjaya'],['putrajaya','Putrajaya']]
+    .map(([id,name]) => ({id, name, active:true, deleted:false}));
+  // sku, name, category, units per pack, pack cost, extra cost, sell price, reorder level
+  const P = [
+    ['SNK-001','Maggie Biasa','Instant Food',17,15,0,1.5,5],
+    ['SNK-002','Maggie Chef / Big','Instant Food',8,12.15,0,2.5,4],
+    ['SNK-003','Bika (3 pcs)','Snack',4,5.2,0,2,2],
+    ['SNK-004','Mamee','Snack',10,6,0,1,5],
+    ['SNK-005','Bubur Instant','Instant Food',6,15.6,0,3.5,3],
+    ['SNK-006','Nabati Panjang','Snack',10,5.2,0,1,5],
+    ['SNK-007','Nips','Snack',13,7.55,0,1,6],
+    ['SNK-008','KitKat','Snack',36,34,0,2,6],
+    ['DRK-001','Coffee 3 in 1','Drink',9,7.8,0,2,4],
+    ['DRK-002','Boom+','Drink',96,146,0,3,24],
+    ['DRK-003','Mineral','Drink',48,25.8,0,2,10]
+  ].map(r => ({id:r[0], sku:r[0], name:r[1], category:r[2], packQty:r[3], packCost:r[4], extraCost:r[5], price:r[6], reorderLevel:r[7], active:true, deleted:false}));
+  const B = 'Business Account', O = 'Own Money';
+  // date, location, item, type, amount, paid using, paid by, notes
+  const M = [
+    ['2026-07-15','office','Eco + 99speedmart (Lysa share)','Restock',46.8,O,'Lysa','Part of RM84.70 purchase'],
+    ['2026-07-15','office','Eco + 99speedmart (Meo share)','Restock',37.9,O,'Meo','Part of RM84.70 purchase'],
+    ['2026-07-16','office','KitKat','Restock',34,O,'Meo',''],
+    ['2026-07-24','office','Eco + 99speedmart','Restock',98.55,O,'Meo',''],
+    ['2026-07-26','tasik','Balji + Hausboom','Restock',173.16,O,'Meo',''],
+    ['2026-07-26','tasik','Sales collected 16/7–26/7','Sales Deposit',116.5,B,'',''],
+    ['2026-08-03','tasik','Mineral','Restock',25.8,B,'',''],
+    ['2026-08-04','tasik','Ice box','Expense',13.6,B,'',''],
+    ['2026-08-04','','Sales collected 28/7–4/8','Sales Deposit',228,B,'','Date fixed from 2026-04-08 in old Excel'],
+    ['2026-08-05','tasik','Mineral & Dutch Lady','Restock',46.8,B,'',''],
+    ['2026-08-06','office','Bika (Eco)','Restock',15.6,B,'',''],
+    ['2026-08-07','tasik','Week 1 – Ais','Expense',10.5,B,'',''],
+    ['2026-08-07','tasik','Week 1 – Ais','Expense',16.5,O,'Meo',''],
+    ['2026-08-08','tasik','Week 2 – Ais','Expense',10.5,B,'',''],
+    ['2026-08-08','tasik','Sales collected 5/8–10/8','Sales Deposit',346.5,B,'',''],
+    ['2026-08-09','tasik','Ais (Maybee)','Expense',3,B,'',''],
+    ['2026-08-10','','Account adjustment','Adjustment',1.2,B,'',''],
+    ['2026-08-10','tasik','2x Mineral, 1x 100plus','Restock',60.3,O,'Meo',''],
+    ['2026-08-10','tasik','Sales','Sales Deposit',40,B,'',''],
+    ['2026-08-10','office','Sales','Sales Deposit',25,B,'',''],
+    ['2026-08-10','','Ais','Expense',5,O,'Lysa',''],
+    ['2026-08-11','office','Sales 11/8','Sales Deposit',9,B,'',''],
+    ['2026-08-11','tasik','Sales 11/8','Sales Deposit',33,B,'',''],
+    ['2026-08-11','','Account adjustment','Adjustment',0.03,B,'',''],
+    ['2026-08-12','tasik','Ais','Expense',5,O,'Meo',''],
+    ['2026-08-12','office','Sales 12/8','Sales Deposit',15,B,'',''],
+    ['2026-08-12','tasik','Sales 12/8','Sales Deposit',62.5,B,'',''],
+    ['2026-08-13','office','Sales 13/8','Sales Deposit',29,B,'',''],
+    ['2026-08-13','tasik','Sales 13/8','Sales Deposit',19.5,B,'',''],
+    ['2026-08-13','tasik','Ais','Expense',5,O,'Lysa',''],
+    ['2026-08-13','tasik','2x 100plus, 3x Mineral','Restock',107.7,B,'',''],
+    ['2026-08-14','tasik','Ais','Expense',5,O,'Meo',''],
+    ['2026-08-14','','Card fee','Reimbursement',12,B,'Meo',''],
+    ['2026-08-14','tasik','Sales 14/8','Sales Deposit',33,B,'',''],
+    ['2026-08-14','office','Sales 14/8','Sales Deposit',13,B,'',''],
+    ['2026-08-15','tasik','1x Dutch Lady','Restock',33.9,B,'',''],
+    ['2026-08-15','tasik','Sales 15/8','Sales Deposit',204.5,B,'',''],
+    ['2026-08-15','tasik','Ais','Expense',3,B,'',''],
+    ['2026-08-16','tasik','Sales 16/8','Sales Deposit',113.5,B,'',''],
+    ['2026-08-16','tasik','2x 100plus','Restock',69,B,'',''],
+    ['2026-08-16','tasik','Ais','Expense',5,B,'',''],
+    ['2026-08-16','tasik','Ais','Expense',1.5,B,'',''],
+    ['2026-08-17','tasik','4x Boom+','Restock',147.36,B,'',''],
+    ['2026-08-17','office','Sales 17/8','Sales Deposit',14,B,'',''],
+    ['2026-08-17','tasik','Sales 17/8','Sales Deposit',35,B,'',''],
+    ['2026-08-18','office','Sales 18/8','Sales Deposit',3,B,'','']
+  ].map((r, i) => ({id:'old-' + (i+1), date:r[0], locationId:r[1], item:r[2], type:r[3], amount:r[4], paidUsing:r[5], paidBy:r[6], notes:r[7], visitId:'', deleted:false}));
+  const S = [{id:'businessName', value:'Nael GrabnGo'}, {id:'people', value:'Lysa,Meo'}];
+  return {Locations:L, Products:P, Money:M, Settings:S};
+}
+function loadSeedLocal() {
+  const s = seedRows(); const now = new Date().toISOString();
+  Object.keys(s).forEach(t => s[t].forEach(r => upsertLocal(t, {...r, updatedAt: now})));
+  persist();
+}
+
+/* ---------- local data access ---------- */
+function normalizeRow(r) {
+  const o = {...r};
+  NUMS.forEach(k => { if (k in o && o[k] !== '') o[k] = num(o[k]); });
+  BOOLS.forEach(k => { if (k in o) o[k] = (o[k] === true || o[k] === 'TRUE' || o[k] === 'true'); });
+  if (o.date) o.date = String(o.date).slice(0, 10);
+  if (o.id != null) o.id = String(o.id);
+  return o;
+}
+function upsertLocal(table, row) {
+  const arr = data[table]; const i = arr.findIndex(r => r.id === row.id);
+  if (i >= 0) arr[i] = row; else arr.push(row);
+}
+function save(table, row) { saveMany([[table, row]]); }
+function saveMany(list) {
+  const now = new Date().toISOString();
+  list.forEach(([t, r]) => {
+    const row = normalizeRow({...r, updatedAt: now});
+    upsertLocal(t, row);
+    if (!isDemo()) queue.push({table: t, row});
+  });
+  persist(); setSync(); flush();
+}
+
+const setting = (k, d) => { const r = data.Settings.find(s => s.id === k); return (r && r.value !== '') ? r.value : d; };
+const people = () => String(setting('people', 'Lysa,Meo')).split(',').map(s => s.trim()).filter(Boolean);
+const bizName = () => setting('businessName', 'Nael GrabnGo');
+const me = () => cfg.me || people()[0] || '';
+const allLocs = () => data.Locations.filter(l => !l.deleted);
+const activeLocs = () => allLocs().filter(l => l.active !== false);
+const locName = id => (data.Locations.find(l => l.id === id) || {}).name || (id ? id : 'General');
+const products = () => data.Products.filter(p => !p.deleted).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+const activeProducts = () => products().filter(p => p.active !== false);
+const productById = id => data.Products.find(p => p.id === id);
+const unitCost = p => num(p.packQty) > 0 ? (num(p.packCost) + num(p.extraCost)) / num(p.packQty) : 0;
+const visits = () => data.Visits.filter(v => !v.deleted).sort((a, b) => (b.date + b.updatedAt).localeCompare(a.date + a.updatedAt));
+const money = () => data.Money.filter(m => !m.deleted);
+
+/** Current stock: latest closing count per location + product */
+function stockMap() {
+  const rows = data.Stock.filter(s => !s.deleted).sort((a, b) => (a.date + a.updatedAt).localeCompare(b.date + b.updatedAt));
+  const m = {};
+  rows.forEach(r => { (m[r.locationId] = m[r.locationId] || {})[r.productId] = {qty: num(r.closing), date: r.date}; });
+  return m;
+}
+
+/** How one money record changes the business account and what the business owes each partner */
+function effect(m) {
+  const a = num(m.amount), own = m.paidUsing === 'Own Money';
+  const e = {acct: 0, owed: 0, person: m.paidBy || ''};
+  switch (m.type) {
+    case 'Sales Deposit': e.acct = a; break;
+    case 'Restock': case 'Expense': if (own) e.owed = a; else e.acct = -a; break;
+    case 'Reimbursement': e.acct = -a; e.owed = -a; break;
+    case 'Capital In': e.acct = a; e.owed = a; break;
+    case 'Adjustment': e.acct = a; break;
+  }
+  return e;
+}
+function moneyTotals(rows = money()) {
+  let acct = 0; const owed = {}; people().forEach(p => owed[p] = 0);
+  rows.forEach(m => { const e = effect(m); acct += e.acct; if (e.owed && e.person) owed[e.person] = (owed[e.person] || 0) + e.owed; });
+  return {acct: round(acct), owed};
+}
+function effectText(m) {
+  const e = effect(m), parts = [];
+  if (e.acct) parts.push('Business account ' + (e.acct > 0 ? '+' : '') + rm(e.acct));
+  if (e.owed && e.person) parts.push(e.owed > 0 ? `Business owes ${e.person} +${rm(e.owed)}` : `Owed to ${e.person} ${rm(e.owed)}`);
+  return parts.join(' · ') || 'No change to balances';
+}
+
+/* ---------- sync with Google Sheets ---------- */
+let flushing = false;
+function setSync(state, err) {
+  if (state) sync.state = state;
+  if (err !== undefined) sync.error = err;
+  const p = $('#syncPill'); if (!p) return;
+  if (isDemo()) p.textContent = 'Demo mode';
+  else if (!navigator.onLine) p.textContent = queue.length ? `Offline · ${queue.length} to sync` : 'Offline';
+  else if (sync.state === 'syncing') p.textContent = 'Syncing…';
+  else if (sync.state === 'error') p.textContent = '⚠ Sync failed';
+  else if (queue.length) p.textContent = `${queue.length} to sync`;
+  else p.textContent = 'Synced ✓';
+}
+async function flush() {
+  if (isDemo() || flushing || !queue.length) return;
+  if (!navigator.onLine) return setSync('offline');
+  flushing = true; setSync('syncing');
+  const batch = queue.slice(0, 150);
+  try {
+    const res = await fetch(cfg.apiUrl, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({key: cfg.pin, ops: batch})});
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'Server error');
+    queue = queue.slice(batch.length); persist();
+    flushing = false;
+    if (queue.length) return flush();
+    await pull();
+  } catch (e) { flushing = false; setSync('error', e.message); }
+}
+async function pull() {
+  if (isDemo()) return;
+  if (!navigator.onLine) return setSync('offline');
+  if (queue.length && !flushing) return flush();
+  setSync('syncing');
+  try {
+    const res = await fetch(cfg.apiUrl + '?action=all&key=' + encodeURIComponent(cfg.pin) + '&t=' + Date.now());
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'Server error');
+    const d = emptyData();
+    TABLES.forEach(t => d[t] = (j.data[t] || []).map(normalizeRow).filter(r => r.id));
+    data = d;
+    queue.forEach(op => upsertLocal(op.table, op.row));   // keep unsynced changes visible
+    sync.last = new Date().toISOString(); store.set('lastSync', sync.last);
+    persist(); setSync('ok', ''); softRender();
+  } catch (e) { setSync('error', e.message); }
+}
+function softRender() {
+  // don't wipe a form the user is typing in
+  if (sheetOpen || (route === 'check' && chk.loc)) { renderHeader(); return; }
+  render();
+}
+
+/* ---------- UI plumbing ---------- */
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600); }
+function openSheet(html) { const s = $('#sheet'); $('.sheet-body', s).innerHTML = '<div class="grab"></div>' + html; s.classList.remove('hidden'); sheetOpen = true; $('.sheet-body', s).scrollTop = 0; }
+function closeSheet(noRender) { $('#sheet').classList.add('hidden'); sheetOpen = false; mf = pf = null; if (!noRender) render(); }
+function go(r) { if (location.hash.slice(1) === r) { route = r; render(); } else location.hash = r; }
+function renderHeader() { $('#title').textContent = bizName(); setSync(); $$('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.r === route)); }
+function render() {
+  if (!VIEWS[route]) route = 'home';
+  renderHeader();
+  $('#view').innerHTML = VIEWS[route]();
+  if (route === 'check' && chk.loc) updateCheckCalc();
+  window.scrollTo(0, 0);
+}
+const emptyBox = (icon, text) => `<div class="empty"><span>${icon}</span>${text}</div>`;
+const gapBadge = (gap, expected) => {
+  if (!expected && !gap) return '<span class="badge b-mute">—</span>';
+  if (gap >= -0.5) return `<span class="badge b-good">${gap > 0.5 ? '+' + rm(gap) : 'Fully paid'}</span>`;
+  const pct = expected > 0 ? -gap / expected : 1;
+  return `<span class="badge ${pct > 0.15 ? 'b-bad' : 'b-warn'}">Short ${rm(-gap)}</span>`;
+};
+
+/* =================== VIEWS =================== */
+const VIEWS = {};
+
+VIEWS.home = () => {
+  const t = moneyTotals(), sm = stockMap(), mk = today().slice(0, 7);
+  const mon = money().filter(m => (m.date || '').startsWith(mk));
+  const sales = sum(mon.filter(m => m.type === 'Sales Deposit'), 'amount');
+  const spent = sum(mon.filter(m => m.type === 'Restock' || m.type === 'Expense'), 'amount');
+  const vis = visits().filter(v => (v.date || '').startsWith(mk));
+  const expd = sum(vis, 'expected'), coll = sum(vis, v => num(v.cash) + num(v.qr));
+  const rate = expd > 0 ? Math.round(coll / expd * 100) : null;
+  const owedHtml = Object.entries(t.owed).map(([p, v]) => `<div class="bal"><span>Business owes ${esc(p)}</span><b>${rm(v)}</b></div>`).join('');
+
+  const low = [];
+  activeLocs().forEach(l => activeProducts().forEach(p => {
+    const s = (sm[l.id] || {})[p.id];
+    if (s && s.qty <= num(p.reorderLevel)) low.push({l, p, qty: s.qty});
+  }));
+
+  const locCards = activeLocs().map(l => {
+    const s = sm[l.id] || {}, lastV = visits().find(v => v.locationId === l.id);
+    const units = sum(Object.values(s), 'qty');
+    const value = Object.entries(s).reduce((a, [pid, x]) => a + x.qty * num((productById(pid) || {}).price), 0);
+    const lowN = low.filter(x => x.l.id === l.id).length;
+    const stale = lastV && daysAgo(lastV.date) >= 3;
+    return `<div class="card tap" data-act="startCheck" data-id="${esc(l.id)}"><div class="loccard">
+      <div class="locicon">📍</div>
+      <div class="grow"><b>${esc(l.name)}</b>
+        <div class="muted">${lastV ? 'Checked ' + agoText(lastV.date) + ' by ' + esc(lastV.by || '?') : 'Not checked yet'} · ${units} items (${rm(value)})</div>
+      </div>
+      <div class="right">${lowN ? `<span class="badge b-warn">${lowN} low</span>` : ''}${stale ? '<br><span class="badge b-mute">Due</span>' : ''}</div>
+    </div></div>`;
+  }).join('');
+
+  const recent = money().slice().sort((a, b) => (b.date + b.updatedAt).localeCompare(a.date + a.updatedAt)).slice(0, 6);
+
+  return `
+  <div class="muted" style="margin:0 4px 8px">Hi ${esc(me() || 'there')} 👋 · ${fmtDate(today())}</div>
+  <div class="card hero">
+    <small>Business account balance</small>
+    <div class="big">${rm(t.acct)}</div>
+    <div style="margin-top:6px;font-size:14px">${owedHtml}</div>
+  </div>
+  <div class="card"><h3>${fmtMonth(mk)}</h3>
+    <div class="grid3">
+      <div class="stat"><small>Sales in</small><b class="in">${rm(sales)}</b></div>
+      <div class="stat"><small>Spent</small><b class="out">${rm(spent)}</b></div>
+      <div class="stat"><small>Cash profit</small><b>${rm(sales - spent)}</b></div>
+    </div>
+    ${expd > 0 ? `<div class="note">Honesty-box check: <b>${rm(coll)}</b> collected of <b>${rm(expd)}</b> expected from counted sales — <b>${rate}%</b> paid.</div>` : `<div class="note">Do a <b>Stock check</b> at each location to see how much was sold vs. paid.</div>`}
+  </div>
+  <h2>Locations · tap to check stock</h2>
+  ${locCards || emptyBox('📍', 'Add a location in More')}
+  ${low.length ? `<h2>Need to top up</h2><div class="card">${low.map(x => `<div class="row"><div class="grow"><b>${esc(x.p.name)}</b><div class="muted">${esc(x.l.name)}</div></div><span class="badge ${x.qty <= 0 ? 'b-bad' : 'b-warn'}">${x.qty} left</span></div>`).join('')}</div>` : ''}
+  <h2>Recent money</h2>
+  <div class="card">${recent.length ? recent.map(moneyRow).join('') : emptyBox('💰', 'No records yet')}</div>`;
+};
+
+/* ----- Stock check (visit) ----- */
+function calcLine(p, last, L) {
+  L = L || {};
+  const opening = last == null ? 0 : num(last);
+  const hasCount = L.counted !== '' && L.counted != null;
+  const added = Math.max(0, num(L.added));
+  const counted = hasCount ? Math.max(0, num(L.counted)) : opening;
+  const include = hasCount || added > 0;
+  const sold = (last == null) ? 0 : opening - counted;  // first count just sets the starting stock
+  return {include, opening, counted, added, sold, closing: counted + added, first: last == null};
+}
+function stepper(pid, f, val, ph) {
+  return `<div class="stepper"><button type="button" data-act="step" data-pid="${esc(pid)}" data-f="${f}" data-d="-1">−</button><input type="number" inputmode="numeric" min="0" step="1" data-pid="${esc(pid)}" data-f="${f}" value="${esc(val ?? '')}" placeholder="${esc(ph)}"><button type="button" data-act="step" data-pid="${esc(pid)}" data-f="${f}" data-d="1">+</button></div>`;
+}
+VIEWS.check = () => {
+  if (!chk.loc || !data.Locations.find(l => l.id === chk.loc)) {
+    return `<div class="card"><h3>Where are you now?</h3><div class="stack">
+      ${activeLocs().map(l => `<button class="btn ghost block" data-act="startCheck" data-id="${esc(l.id)}">📍 ${esc(l.name)}</button>`).join('') || emptyBox('📍', 'Add a location in More')}
+      </div><div class="note">How it works: count what's <b>left</b>, enter what you <b>added</b>, then the money you collected. The app works out what was sold and whether everyone paid.</div></div>
+      <h2>Past stock checks</h2>${visitHistory()}`;
+  }
+  const sm = stockMap()[chk.loc] || {};
+  const first = Object.keys(sm).length === 0;
+  const rows = activeProducts().map(p => {
+    const last = sm[p.id] ? sm[p.id].qty : null, L = chk.lines[p.id] || {};
+    return `<div class="card prow">
+      <div class="ptop"><div class="grow"><b>${esc(p.name)}</b><div class="muted">${rm(p.price)} · ${last == null ? 'new here' : 'last count <b>' + last + '</b>'}</div></div><div id="sold_${esc(p.id)}"></div></div>
+      <div class="grid2">
+        <div><label class="f">Left in box</label>${stepper(p.id, 'counted', L.counted, last == null ? '–' : String(last))}</div>
+        <div><label class="f">Added now</label>${stepper(p.id, 'added', L.added, '0')}</div>
+      </div></div>`;
+  }).join('');
+  return `
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:8px"><div class="grow"><small class="muted">Stock check at</small><h3 style="margin:0">📍 ${esc(locName(chk.loc))}</h3></div><button class="btn ghost sm" data-act="cancelCheck">Change</button></div>
+    <div class="grid2"><div><label class="f">Date</label><input type="date" data-chk="date" value="${esc(chk.date)}"></div>
+    <div><label class="f">Checked by</label><select data-chk="by">${people().map(p => `<option ${p === (chk.by || me()) ? 'selected' : ''}>${esc(p)}</option>`).join('')}</select></div></div>
+    ${first ? '<div class="note">First check here — just enter how many of each item is in the box now. That becomes the starting stock.</div>' : '<div class="note">Leave “Left” empty for items you didn\'t count. Tap − / + or type the number.</div>'}
+  </div>
+  ${rows || emptyBox('🏷️', 'Add products first')}
+  <div class="bar"><div><small style="opacity:.75">Sold</small><br><b id="barSold">0 items</b></div><div class="right"><small style="opacity:.75">Expected money</small><br><b id="barExp">RM0.00</b></div></div>
+  <div class="card"><h3>💵 Money collected</h3>
+    <div class="grid2">
+      <div><label class="f">Cash in box (RM)</label><input type="number" inputmode="decimal" step="0.01" data-chk="cash" value="${esc(chk.cash)}" placeholder="0.00"></div>
+      <div><label class="f">QR received (RM)</label><input type="number" inputmode="decimal" step="0.01" data-chk="qr" value="${esc(chk.qr)}" placeholder="0.00"></div>
+    </div>
+    <div id="gapBox" class="note"></div>
+    <label class="check"><input type="checkbox" data-chk="deposit" ${chk.deposit ? 'checked' : ''}> Add collected money to business account (Sales Deposit)</label>
+    <label class="f">Notes</label><input data-chk="notes" value="${esc(chk.notes)}" placeholder="e.g. box was wet, 2 Mineral missing">
+    <div style="margin-top:14px" class="stack"><button class="btn block" data-act="saveCheck">✓ Save stock check</button>
+    <button class="btn ghost block" data-act="clearCheck">Clear inputs</button></div>
+  </div>`;
+};
+function updateCheckCalc() {
+  const sm = stockMap()[chk.loc] || {};
+  let units = 0, exp = 0;
+  activeProducts().forEach(p => {
+    const last = sm[p.id] ? sm[p.id].qty : null;
+    const c = calcLine(p, last, chk.lines[p.id]);
+    const el = document.getElementById('sold_' + p.id);
+    if (c.include && c.sold > 0) { units += c.sold; exp += c.sold * num(p.price); }
+    if (!el) return;
+    if (!c.include) el.innerHTML = '';
+    else if (c.first) el.innerHTML = `<span class="badge b-mute">Start: ${c.closing}</span>`;
+    else if (c.sold > 0) el.innerHTML = `<span class="badge b-good">Sold ${c.sold} · ${rm(c.sold * num(p.price))}</span>`;
+    else if (c.sold < 0) el.innerHTML = `<span class="badge b-warn">${-c.sold} more than last</span>`;
+    else el.innerHTML = `<span class="badge b-mute">No sales</span>`;
+  });
+  const coll = num(chk.cash) + num(chk.qr), gap = coll - exp;
+  const bs = $('#barSold'), be = $('#barExp'), gb = $('#gapBox');
+  if (bs) bs.textContent = units + (units === 1 ? ' item' : ' items');
+  if (be) be.textContent = rm(exp);
+  if (gb) gb.innerHTML = exp > 0 || coll > 0
+    ? `Collected <b>${rm(coll)}</b> vs expected <b>${rm(exp)}</b> → ${gapBadge(gap, exp)}`
+    : 'Enter the cash and QR amounts you collected since the last check.';
+}
+function visitHistory(locId) {
+  const vs = visits().filter(v => !locId || v.locationId === locId).slice(0, 30);
+  if (!vs.length) return `<div class="card">${emptyBox('📦', 'No stock checks yet')}</div>`;
+  return `<div class="card">${vs.map(v => {
+    const coll = num(v.cash) + num(v.qr);
+    return `<div class="row tap" data-act="visit" data-id="${esc(v.id)}"><div class="grow"><b>${esc(locName(v.locationId))}</b><div class="muted">${fmtDate(v.date)} · ${esc(v.by || '')} · expected ${rm(v.expected)}</div></div><div class="right"><b>${rm(coll)}</b><br>${gapBadge(coll - num(v.expected), num(v.expected))}</div></div>`;
+  }).join('')}</div>`;
+}
+function showVisit(id) {
+  const v = data.Visits.find(x => x.id === id); if (!v) return;
+  const lines = data.Stock.filter(s => s.visitId === id && !s.deleted);
+  const coll = num(v.cash) + num(v.qr);
+  openSheet(`<h3>📍 ${esc(locName(v.locationId))} · ${fmtDate(v.date)}</h3>
+    <div class="muted">Checked by ${esc(v.by || '?')}${v.notes ? ' · ' + esc(v.notes) : ''}</div>
+    <div class="card" style="margin-top:12px">${lines.map(l => {
+      const p = productById(l.productId) || {name: l.productId};
+      return `<div class="row"><div class="grow"><b>${esc(p.name)}</b><div class="muted">was ${l.opening} → left ${l.counted}${num(l.added) ? ' · added ' + l.added : ''} → now ${l.closing}</div></div><div class="right">${num(l.sold) > 0 ? `<b>${l.sold} sold</b><br><span class="muted">${rm(num(l.sold) * num(l.price))}</span>` : '<span class="muted">—</span>'}</div></div>`;
+    }).join('') || '<div class="muted">No items counted</div>'}</div>
+    <div class="card"><div class="bal"><span>Expected</span><b>${rm(v.expected)}</b></div><div class="bal"><span>Cash</span><b>${rm(v.cash)}</b></div><div class="bal"><span>QR</span><b>${rm(v.qr)}</b></div><div class="bal"><span>Result</span>${gapBadge(coll - num(v.expected), num(v.expected))}</div></div>
+    <div class="stack"><button class="btn danger block" data-act="delVisit" data-id="${esc(id)}">Delete this stock check</button><button class="btn ghost block" data-act="closeSheet">Close</button></div>`);
+}
+
+/* ----- Money ----- */
+function moneyRow(m) {
+  const e = effect(m), t = MTYPES.find(x => x.k === m.type) || {i: '•'};
+  const isIn = m.type === 'Sales Deposit' || m.type === 'Capital In' || (m.type === 'Adjustment' && num(m.amount) >= 0);
+  const sub = [fmtDate(m.date), m.locationId ? locName(m.locationId) : '', m.paidUsing === 'Own Money' ? 'paid by ' + (m.paidBy || '?') : (m.type === 'Reimbursement' ? 'to ' + (m.paidBy || '?') : '')].filter(Boolean).join(' · ');
+  return `<div class="row tap" data-act="editMoney" data-id="${esc(m.id)}"><div class="locicon" style="width:38px;height:38px;flex-basis:38px;font-size:18px">${t.i}</div>
+    <div class="grow"><div class="ell"><b>${esc(m.item || m.type)}</b></div><div class="muted ell">${esc(sub)}</div></div>
+    <div class="right"><span class="${isIn ? 'in' : 'out'}">${isIn ? '+' : '−'}${rm(Math.abs(num(m.amount)))}</span><br><span class="muted" style="font-size:11px">${e.acct ? 'account' : e.owed ? 'own money' : ''}</span></div></div>`;
+}
+VIEWS.money = () => {
+  const t = moneyTotals();
+  const months = [...new Set(money().map(m => (m.date || '').slice(0, 7)).filter(Boolean))].sort().reverse();
+  if (!months.includes(moneyFilter.month) && moneyFilter.month !== 'All') months.unshift(moneyFilter.month);
+  let list = money().filter(m => moneyFilter.month === 'All' || (m.date || '').startsWith(moneyFilter.month));
+  const mIn = sum(list.filter(m => m.type === 'Sales Deposit'), 'amount');
+  const mOut = sum(list.filter(m => m.type === 'Restock' || m.type === 'Expense'), 'amount');
+  if (moneyFilter.type !== 'All') list = list.filter(m => m.type === moneyFilter.type);
+  list.sort((a, b) => (b.date + b.updatedAt).localeCompare(a.date + a.updatedAt));
+  const groups = {};
+  list.forEach(m => (groups[m.date] = groups[m.date] || []).push(m));
+  return `
+  <div class="card hero"><small>Business account</small><div class="big">${rm(t.acct)}</div>
+    <div style="font-size:14px;margin-top:6px">${Object.entries(t.owed).map(([p, v]) => `<div class="bal"><span>Business owes ${esc(p)}</span><b>${rm(v)}</b></div>`).join('')}</div></div>
+  <div class="grid2" style="margin-bottom:10px">
+    <select data-mf="month"><option value="All">All months</option>${months.map(k => `<option value="${k}" ${k === moneyFilter.month ? 'selected' : ''}>${fmtMonth(k)}</option>`).join('')}</select>
+    <select data-mf="type"><option>All</option>${MTYPES.map(x => `<option ${x.k === moneyFilter.type ? 'selected' : ''}>${x.k}</option>`).join('')}</select>
+  </div>
+  <div class="card"><div class="grid3">
+    <div class="stat"><small>Sales in</small><b class="in">${rm(mIn)}</b></div>
+    <div class="stat"><small>Spent</small><b class="out">${rm(mOut)}</b></div>
+    <div class="stat"><small>Cash profit</small><b>${rm(mIn - mOut)}</b></div></div></div>
+  ${Object.keys(groups).length ? Object.entries(groups).map(([d, ms]) => `<h2>${fmtDate(d)}</h2><div class="card">${ms.map(moneyRow).join('')}</div>`).join('') : `<div class="card">${emptyBox('💰', 'Nothing here. Tap “+ Add” to record money.')}</div>`}
+  <button class="btn fab" data-act="addMoney">＋ Add</button>`;
+};
+function moneyForm() {
+  const m = mf, t = MTYPES.find(x => x.k === m.type);
+  const needsPay = m.type === 'Restock' || m.type === 'Expense';
+  const needsPerson = (needsPay && m.paidUsing === 'Own Money') || m.type === 'Reimbursement' || m.type === 'Capital In';
+  const personLabel = m.type === 'Reimbursement' ? 'Pay back to' : m.type === 'Capital In' ? 'Money from' : 'Who paid?';
+  return `<form id="mform" onsubmit="return false">
+    <h3>${m._new ? 'Add money record' : 'Edit money record'}</h3>
+    <div class="typegrid">${MTYPES.map(x => `<button type="button" class="chip ${x.k === m.type ? 'on' : ''}" data-act="mType" data-k="${x.k}"><span>${x.i}</span>${x.k}</button>`).join('')}</div>
+    <div class="note">${t.hint}</div>
+    <label class="f">Amount (RM)</label><input name="amount" type="number" inputmode="decimal" step="0.01" value="${esc(m.amount)}" placeholder="0.00" style="font-size:22px;font-weight:700">
+    ${needsPay ? `<label class="f">Paid using</label><div class="chips">${['Business Account', 'Own Money'].map(x => `<button type="button" class="chip ${m.paidUsing === x ? 'on' : ''}" data-act="mPay" data-k="${x}">${x === 'Own Money' ? '👛 Own money' : '🏦 Business account'}</button>`).join('')}</div>` : ''}
+    ${needsPerson ? `<label class="f">${personLabel}</label><div class="chips">${people().map(p => `<button type="button" class="chip ${m.paidBy === p ? 'on' : ''}" data-act="mWho" data-k="${esc(p)}">${esc(p)}</button>`).join('')}</div>` : ''}
+    <label class="f">What for?</label><input name="item" value="${esc(m.item)}" placeholder="${m.type === 'Sales Deposit' ? 'e.g. Sales Tasik 7/11' : 'e.g. 2x Mineral at 99 Speedmart'}">
+    <div class="grid2"><div><label class="f">Date</label><input name="date" type="date" value="${esc(m.date)}"></div>
+    <div><label class="f">Location</label><select name="locationId"><option value="">General</option>${allLocs().map(l => `<option value="${esc(l.id)}" ${l.id === m.locationId ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select></div></div>
+    <label class="f">Notes</label><input name="notes" value="${esc(m.notes)}" placeholder="optional">
+    <div class="note" id="mEffect">${effectText(m)}</div>
+    <div class="stack" style="margin-top:14px"><button type="button" class="btn block" data-act="saveMoney">Save</button>
+    ${m._new ? '' : `<button type="button" class="btn danger block" data-act="delMoney">Delete</button>`}
+    <button type="button" class="btn ghost block" data-act="closeSheet">Cancel</button></div></form>`;
+}
+function readForm(id, obj) { const f = document.getElementById(id); if (!f) return obj; $$('[name]', f).forEach(el => obj[el.name] = el.type === 'checkbox' ? el.checked : el.value); return obj; }
+function fixPay(m) {
+  if (m.type === 'Restock' || m.type === 'Expense') { if (!m.paidUsing) m.paidUsing = 'Business Account'; }
+  else m.paidUsing = 'Business Account';
+  const needsPerson = ((m.type === 'Restock' || m.type === 'Expense') && m.paidUsing === 'Own Money') || m.type === 'Reimbursement' || m.type === 'Capital In';
+  if (!needsPerson) m.paidBy = ''; else if (!m.paidBy) m.paidBy = me();
+}
+
+/* ----- Products ----- */
+VIEWS.products = () => {
+  const sm = stockMap();
+  const total = pid => Object.values(sm).reduce((a, l) => a + (l[pid] ? l[pid].qty : 0), 0);
+  const ps = products();
+  const byCat = {};
+  ps.forEach(p => (byCat[p.category || 'Other'] = byCat[p.category || 'Other'] || []).push(p));
+  return `${Object.keys(byCat).length ? Object.entries(byCat).map(([c, list]) => `<h2>${esc(c)}</h2><div class="card">${list.map(p => {
+    const uc = unitCost(p), pr = num(p.price), mg = pr > 0 ? (pr - uc) / pr * 100 : 0;
+    return `<div class="row tap" data-act="editProd" data-id="${esc(p.id)}"><div class="grow"><b>${esc(p.name)}</b>${p.active === false ? ' <span class="badge b-mute">hidden</span>' : ''}<div class="muted">Cost ${rm(uc)} · Sell ${rm(pr)} · ${total(p.id)} in stock</div></div><span class="badge ${mg >= 30 ? 'b-good' : mg >= 15 ? 'b-warn' : 'b-bad'}">${Math.round(mg)}%</span></div>`;
+  }).join('')}</div>`).join('') : `<div class="card">${emptyBox('🏷️', 'No products yet')}</div>`}
+  <div class="note">The % is your <b>gross margin</b> (profit ÷ selling price). Green ≥ 30%, amber 15–30%, red below 15%.</div>
+  <button class="btn fab" data-act="addProd">＋ Product</button>`;
+};
+function prodForm() {
+  const p = pf;
+  return `<form id="pform" onsubmit="return false"><h3>${p._new ? 'New product' : 'Edit product'}</h3>
+    <label class="f">Product name</label><input name="name" value="${esc(p.name)}" placeholder="e.g. 100plus 500ml">
+    <div class="grid2"><div><label class="f">Category</label><select name="category">${CATEGORIES.map(c => `<option ${c === p.category ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    <div><label class="f">SKU / code</label><input name="sku" value="${esc(p.sku)}" placeholder="DRK-004"></div></div>
+    <div class="grid2"><div><label class="f">Units per pack</label><input name="packQty" type="number" inputmode="numeric" value="${esc(p.packQty)}" placeholder="24"></div>
+    <div><label class="f">Pack cost (RM)</label><input name="packCost" type="number" inputmode="decimal" step="0.01" value="${esc(p.packCost)}" placeholder="0.00"></div></div>
+    <div class="grid2"><div><label class="f">Extra cost / pack</label><input name="extraCost" type="number" inputmode="decimal" step="0.01" value="${esc(p.extraCost)}" placeholder="ice, transport"></div>
+    <div><label class="f">Selling price (RM)</label><input name="price" type="number" inputmode="decimal" step="0.10" value="${esc(p.price)}" placeholder="0.00"></div></div>
+    <label class="f">Top-up alert when this many left (per location)</label><input name="reorderLevel" type="number" inputmode="numeric" value="${esc(p.reorderLevel)}" placeholder="5">
+    <label class="check"><input type="checkbox" name="active" ${p.active !== false ? 'checked' : ''}> Show in stock check (untick if you stop selling it)</label>
+    <div class="note" id="pCalc"></div>
+    <div class="stack" style="margin-top:14px"><button type="button" class="btn block" data-act="saveProd">Save product</button>
+    <button type="button" class="btn ghost block" data-act="closeSheet">Cancel</button></div></form>`;
+}
+function updatePCalc() {
+  const el = $('#pCalc'); if (!el || !pf) return;
+  readForm('pform', pf);
+  const uc = unitCost(pf), pr = num(pf.price), pft = pr - uc;
+  const sug = m => rm(Math.ceil(uc / (1 - m) * 10) / 10);
+  el.innerHTML = uc > 0
+    ? `Cost per unit <b>${rm(uc)}</b> · Profit per unit <b>${rm(pft)}</b> · Margin <b>${pr > 0 ? Math.round(pft / pr * 100) : 0}%</b><br><span class="muted">Price for 30% margin: ${sug(.3)} · 40%: ${sug(.4)} · 50%: ${sug(.5)}</span>`
+    : 'Enter units per pack and pack cost to see your cost and margin.';
+}
+
+/* ----- More / settings ----- */
+VIEWS.more = () => {
+  const empty = !isDemo() && !data.Products.length && !data.Money.length && sync.last;
+  return `
+  <div class="card"><h3>👤 Who is using this phone?</h3><div class="chips">${people().map(p => `<button class="chip ${p === cfg.me ? 'on' : ''}" data-act="setMe" data-k="${esc(p)}">${esc(p)}</button>`).join('')}</div></div>
+  ${empty ? `<div class="card" style="border-color:var(--brand2)"><h3>📥 Your Google Sheet is empty</h3><p class="muted">Import your old Excel records (11 products, 3 locations and 46 money records up to 18 Aug).</p><button class="btn block" data-act="importSeed">Import old Excel records</button></div>` : ''}
+  <div class="card"><h3>🔗 Connection to Google Sheet</h3>
+    <p class="muted">${isDemo() ? 'You are in <b>demo mode</b>: data is saved only on this phone. Connect to share with your partner.' : 'Connected. Last sync: ' + (sync.last ? new Date(sync.last).toLocaleString('en-GB') : 'never')}${sync.error ? '<br><span class="out">' + esc(sync.error) + '</span>' : ''}</p>
+    <label class="f">Web app URL (from Apps Script)</label><input id="cUrl" value="${esc(cfg.apiUrl)}" placeholder="https://script.google.com/macros/s/…/exec">
+    <label class="f">PIN</label><input id="cPin" type="password" inputmode="numeric" value="${esc(cfg.pin)}" placeholder="the PIN in Code.gs">
+    <div class="grid2" style="margin-top:12px"><button class="btn" data-act="saveConn">Save & connect</button><button class="btn ghost" data-act="syncNow">Sync now</button></div>
+    ${queue.length ? `<div class="note">${queue.length} change(s) waiting to upload.</div>` : ''}
+  </div>
+  <div class="card"><h3>🏪 Business</h3>
+    <label class="f">Business name</label><input id="sBiz" value="${esc(bizName())}">
+    <label class="f">Partners (comma separated)</label><input id="sPeople" value="${esc(people().join(', '))}">
+    <button class="btn ghost block" style="margin-top:12px" data-act="saveBiz">Save</button>
+  </div>
+  <div class="card"><h3>📍 Locations</h3>
+    ${allLocs().map(l => `<div class="row"><div class="grow"><b>${esc(l.name)}</b>${l.active === false ? ' <span class="badge b-mute">hidden</span>' : ''}</div><button class="btn ghost sm" data-act="renameLoc" data-id="${esc(l.id)}">Rename</button><button class="btn ghost sm" data-act="toggleLoc" data-id="${esc(l.id)}">${l.active === false ? 'Show' : 'Hide'}</button></div>`).join('')}
+    <button class="btn ghost block" style="margin-top:10px" data-act="addLoc">＋ Add location</button>
+  </div>
+  <div class="card"><h3>📤 Data</h3><div class="stack">
+    <button class="btn ghost block" data-act="csvMoney">Download money records (CSV)</button>
+    <button class="btn ghost block" data-act="csvStock">Download stock checks (CSV)</button>
+    ${isDemo() ? '<button class="btn ghost block" data-act="resetDemo">Reset demo data</button>' : ''}
+  </div></div>
+  <div class="card tips"><h3>💡 Routine that keeps the numbers right</h3><ol style="padding-left:20px;margin:0">
+    <li><b>Every visit = one Stock check.</b> Count what's left, add what you top up, enter cash + QR. Takes 2 minutes.</li>
+    <li><b>Check each location at the same rhythm</b> (e.g. Tasik daily/every 2 days, office weekly). Short gaps make missing money easy to spot.</li>
+    <li><b>Record purchases the same day</b> in Money → Restock. Choose “Own money” if you paid yourself — the app tracks what the business owes you.</li>
+    <li><b>Once a week, compare the balance with the bank app.</b> If different, add an Adjustment and write why.</li>
+    <li><b>Pay partners back</b> with Reimbursement when the account has enough money.</li>
+    <li><b>Watch the “paid %”</b> on Home. If a location drops below ~85%, move the box, add a clearer QR/price poster, or sell only higher-margin items there.</li>
+  </ol></div>
+  <p class="muted" style="text-align:center">GrabnGo app · v1.0</p>`;
+};
+
+/* =================== ACTIONS =================== */
+const ACT = {
+  syncNow() { if (isDemo()) { go('more'); toast('Connect a Google Sheet in More to sync'); return; } flush(); pull(); },
+  closeSheet() { closeSheet(); },
+  startCheck(t) {
+    const id = t.dataset.id;
+    if (chk.loc !== id) { chk = newCheck(id); saveDraft(); }
+    go('check');
+  },
+  cancelCheck() {
+    if (Object.keys(chk.lines).length && !confirm('Discard this stock check?')) return;
+    chk = newCheck(''); saveDraft(); render();
+  },
+  clearCheck() { if (!confirm('Clear all numbers you entered?')) return; chk = newCheck(chk.loc); saveDraft(); render(); },
+  step(t) {
+    const input = t.parentElement.querySelector('input');
+    const base = input.value === '' ? (t.dataset.f === 'counted' ? num(input.placeholder) : 0) : num(input.value);
+    input.value = Math.max(0, base + num(t.dataset.d));
+    onLineInput(input);
+  },
+  saveCheck() {
+    const sm = stockMap()[chk.loc] || {}, vid = uid(); let exp = 0; const lines = [];
+    activeProducts().forEach(p => {
+      const last = sm[p.id] ? sm[p.id].qty : null, c = calcLine(p, last, chk.lines[p.id]);
+      if (!c.include) return;
+      if (c.sold > 0) exp += c.sold * num(p.price);
+      lines.push({id: uid(), visitId: vid, date: chk.date, locationId: chk.loc, productId: p.id, opening: c.opening, counted: c.counted, sold: c.sold, added: c.added, closing: c.closing, price: num(p.price), unitCost: round(unitCost(p), 4), deleted: false});
+    });
+    const cash = num(chk.cash), qr = num(chk.qr);
+    if (!lines.length && !(cash + qr)) return toast('Enter at least one count or amount');
+    const v = {id: vid, date: chk.date, locationId: chk.loc, by: chk.by || me(), cash, qr, expected: round(exp), notes: chk.notes || '', deleted: false};
+    const ops = [['Visits', v], ...lines.map(l => ['Stock', l])];
+    if (chk.deposit && cash + qr > 0) ops.push(['Money', {id: uid(), date: chk.date, locationId: chk.loc, item: 'Sales ' + locName(chk.loc), type: 'Sales Deposit', amount: round(cash + qr), paidUsing: 'Business Account', paidBy: '', notes: 'From stock check', visitId: vid, deleted: false}]);
+    saveMany(ops);
+    const gap = cash + qr - exp;
+    chk = newCheck(''); saveDraft(); render();
+    toast(`Saved ✓ Expected ${rm(exp)}, collected ${rm(cash + qr)}${exp > 0 && gap < -0.5 ? ' (short ' + rm(-gap) + ')' : ''}`);
+  },
+  visit(t) { showVisit(t.dataset.id); },
+  delVisit(t) {
+    const id = t.dataset.id;
+    if (!confirm('Delete this stock check? Its counts and the linked sales deposit will be removed.')) return;
+    const ops = [];
+    const v = data.Visits.find(x => x.id === id); if (v) ops.push(['Visits', {...v, deleted: true}]);
+    data.Stock.filter(s => s.visitId === id).forEach(s => ops.push(['Stock', {...s, deleted: true}]));
+    data.Money.filter(m => m.visitId === id).forEach(m => ops.push(['Money', {...m, deleted: true}]));
+    saveMany(ops); closeSheet(); toast('Deleted');
+  },
+  addMoney() { mf = {_new: true, id: uid(), date: today(), type: 'Restock', amount: '', item: '', locationId: '', paidUsing: 'Business Account', paidBy: '', notes: '', visitId: '', deleted: false}; openSheet(moneyForm()); },
+  editMoney(t) { const m = data.Money.find(x => x.id === t.dataset.id); if (!m) return; mf = {...m}; openSheet(moneyForm()); },
+  mType(t) { readForm('mform', mf); mf.type = t.dataset.k; fixPay(mf); openSheet(moneyForm()); },
+  mPay(t) { readForm('mform', mf); mf.paidUsing = t.dataset.k; fixPay(mf); openSheet(moneyForm()); },
+  mWho(t) { readForm('mform', mf); mf.paidBy = t.dataset.k; openSheet(moneyForm()); },
+  saveMoney() {
+    readForm('mform', mf); fixPay(mf);
+    const a = num(mf.amount);
+    if (!a || (a < 0 && mf.type !== 'Adjustment')) return toast('Enter a valid amount');
+    if (!mf.date) return toast('Pick a date');
+    const row = {...mf, amount: round(a)}; delete row._new;
+    save('Money', row); closeSheet(); toast('Saved ✓');
+  },
+  delMoney() { if (!confirm('Delete this record?')) return; const row = {...mf, deleted: true}; delete row._new; save('Money', row); closeSheet(); toast('Deleted'); },
+  addProd() { pf = {_new: true, id: uid(), sku: '', name: '', category: 'Drink', packQty: '', packCost: '', extraCost: '', price: '', reorderLevel: 5, active: true, deleted: false}; openSheet(prodForm()); updatePCalc(); },
+  editProd(t) { const p = data.Products.find(x => x.id === t.dataset.id); if (!p) return; pf = {...p}; openSheet(prodForm()); updatePCalc(); },
+  saveProd() {
+    readForm('pform', pf);
+    if (!String(pf.name).trim()) return toast('Enter a product name');
+    if (!num(pf.price)) return toast('Enter a selling price');
+    const row = {...pf, name: String(pf.name).trim(), active: !!pf.active}; delete row._new;
+    save('Products', row); closeSheet(); toast('Product saved ✓');
+  },
+  setMe(t) { cfg.me = t.dataset.k; store.set('cfg', cfg); if (!chk.by) chk.by = cfg.me; if (sheetOpen) closeSheet(); else render(); toast('Hi ' + cfg.me + '!'); },
+  async saveConn() {
+    const url = $('#cUrl').value.trim(), pin = $('#cPin').value.trim();
+    if (url && !/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) return toast('URL should start with https://script.google.com/');
+    const changed = url !== cfg.apiUrl;
+    if (changed && url && isDemo() && !confirm('Switch to your Google Sheet? Demo data on this phone will be cleared.')) return;
+    cfg.apiUrl = url; cfg.pin = pin; store.set('cfg', cfg);
+    if (changed) { data = emptyData(); queue = []; sync.last = null; persist(); if (!url) loadSeedLocal(); }
+    render();
+    if (url) { toast('Connecting…'); await pull(); toast(sync.state === 'error' ? 'Could not connect: ' + sync.error : 'Connected ✓'); render(); }
+  },
+  importSeed() {
+    if (data.Money.length && !confirm('There are already records. Import anyway?')) return;
+    const s = seedRows(), ops = [];
+    Object.keys(s).forEach(t => s[t].forEach(r => ops.push([t, r])));
+    saveMany(ops); toast('Importing ' + ops.length + ' records…'); render();
+  },
+  saveBiz() {
+    const name = $('#sBiz').value.trim() || 'Nael GrabnGo';
+    const ppl = $('#sPeople').value.split(',').map(s => s.trim()).filter(Boolean).join(',');
+    saveMany([['Settings', {id: 'businessName', value: name}], ['Settings', {id: 'people', value: ppl || 'Lysa,Meo'}]]);
+    render(); toast('Saved ✓');
+  },
+  addLoc() { const n = prompt('Location name (e.g. Putrajaya Presint 9 lake)'); if (!n || !n.trim()) return; save('Locations', {id: uid(), name: n.trim(), active: true, deleted: false}); render(); },
+  renameLoc(t) { const l = data.Locations.find(x => x.id === t.dataset.id); const n = prompt('New name', l.name); if (!n || !n.trim()) return; save('Locations', {...l, name: n.trim()}); render(); },
+  toggleLoc(t) { const l = data.Locations.find(x => x.id === t.dataset.id); save('Locations', {...l, active: l.active === false}); render(); },
+  csvMoney() {
+    let bal = 0; const rows = money().slice().sort((a, b) => (a.date + a.updatedAt).localeCompare(b.date + b.updatedAt)).map(m => { const e = effect(m); bal += e.acct; return [m.date, locName(m.locationId), m.item, m.type, m.amount, m.paidUsing, m.paidBy, round(e.acct), round(bal), m.notes]; });
+    downloadCsv('grabngo-money.csv', [['Date', 'Location', 'Item', 'Type', 'Amount', 'Paid using', 'Paid by', 'Account change', 'Account balance', 'Notes'], ...rows]);
+  },
+  csvStock() {
+    const vmap = Object.fromEntries(data.Visits.map(v => [v.id, v]));
+    const rows = data.Stock.filter(s => !s.deleted).sort((a, b) => (a.date + a.updatedAt).localeCompare(b.date + b.updatedAt)).map(s => [s.date, locName(s.locationId), (productById(s.productId) || {}).name || s.productId, s.opening, s.counted, s.sold, s.added, s.closing, s.price, round(num(s.sold) * num(s.price)), (vmap[s.visitId] || {}).by || '']);
+    downloadCsv('grabngo-stock.csv', [['Date', 'Location', 'Product', 'Before', 'Left', 'Sold', 'Added', 'Now', 'Price', 'Sales value', 'Checked by'], ...rows]);
+  },
+  resetDemo() { if (!confirm('Reset demo data on this phone?')) return; data = emptyData(); loadSeedLocal(); chk = newCheck(''); saveDraft(); render(); toast('Demo data reset'); }
+};
+function downloadCsv(name, rows) {
+  const csv = rows.map(r => r.map(v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + csv], {type: 'text/csv'}));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
+function onLineInput(el) {
+  const pid = el.dataset.pid, f = el.dataset.f;
+  chk.lines[pid] = chk.lines[pid] || {counted: '', added: ''};
+  chk.lines[pid][f] = el.value;
+  saveDraft(); updateCheckCalc();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (t && ACT[t.dataset.act]) { e.preventDefault(); ACT[t.dataset.act](t, e); }
+});
+function onInput(e) {
+  const el = e.target;
+  if (el.dataset.pid) return onLineInput(el);
+  if (el.dataset.chk) { chk[el.dataset.chk] = el.type === 'checkbox' ? el.checked : el.value; saveDraft(); return updateCheckCalc(); }
+  if (el.dataset.mf) { moneyFilter[el.dataset.mf] = el.value; return render(); }
+  if (el.closest('#mform') && mf) { readForm('mform', mf); const x = $('#mEffect'); if (x) x.textContent = effectText(mf); }
+  if (el.closest('#pform') && pf) updatePCalc();
+}
+document.addEventListener('input', onInput);
+document.addEventListener('change', e => { if (e.target.dataset.mf || e.target.type === 'checkbox' || e.target.tagName === 'SELECT') onInput(e); });
+window.addEventListener('hashchange', () => { route = location.hash.slice(1) || 'home'; if (sheetOpen) closeSheet(true); render(); });
+window.addEventListener('online', () => { setSync(); flush(); pull(); });
+window.addEventListener('offline', () => setSync());
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pull(); });
+setInterval(() => { if (document.visibilityState === 'visible') pull(); }, 90000);
+
+/* ---------- start ---------- */
+if (!data) { data = emptyData(); if (isDemo()) loadSeedLocal(); }
+TABLES.forEach(t => { if (!Array.isArray(data[t])) data[t] = []; });
+render();
+if (!cfg.me) {
+  openSheet(`<h3>👋 Welcome to ${esc(bizName())}</h3><p class="muted">Who is using this phone? (You can change this later in More.)</p>
+    <div class="stack">${people().map(p => `<button class="btn block" data-act="setMe" data-k="${esc(p)}">I'm ${esc(p)}</button>`).join('')}</div>
+    ${isDemo() ? '<div class="note">You are in <b>demo mode</b> with your old Excel data loaded. Connect your Google Sheet in <b>More</b> when ready.</div>' : ''}`);
+}
+pull();
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
