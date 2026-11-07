@@ -99,6 +99,25 @@ input:focus,select:focus,textarea:focus{border-color:var(--brand2);box-shadow:0 
 .foot-logo{display:block;width:90px;margin:10px auto 0;opacity:.9}
 h2{font-family:Nunito,sans-serif;font-weight:800}
 .loccard{display:flex;gap:12px;align-items:center}
+.proofs{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:4px}
+.pthumb{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--soft);border:1px solid var(--line);cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;color:var(--mute);padding:0}
+.pthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pthumb .doc{padding:6px;word-break:break-all;line-height:1.2}
+.pthumb .doc b{display:block;font-size:26px;margin-bottom:2px}
+.pthumb .x{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(42,16,7,.75);color:#fff;font-size:14px;line-height:24px;cursor:pointer;padding:0}
+.pthumb .wait{position:absolute;left:4px;bottom:4px;font-size:10px;font-weight:700;background:rgba(42,16,7,.75);color:#fcebd4;border-radius:6px;padding:1px 5px}
+.padd{aspect-ratio:1;border-radius:12px;border:2px dashed var(--tan);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--brand2);font-weight:800;font-size:12px;cursor:pointer;background:transparent}
+.padd span{font-size:24px}
+.viewer{position:fixed;inset:0;z-index:40;background:rgba(20,10,5,.94);display:flex;flex-direction:column}
+.viewer.hidden{display:none}
+.vbar{display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;color:#fcebd4}
+.vbar .grow{font-weight:700;font-size:14px}
+.vbar a,.vbar button{color:#fcebd4;background:rgba(252,235,212,.14);border:0;border-radius:10px;padding:8px 12px;font:inherit;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+.vbody{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:8px;touch-action:pinch-zoom pan-x pan-y}
+.vbody img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+.vbody .docbox{color:#fcebd4;text-align:center}
+.vbody .docbox b{font-size:60px;display:block}
+.clip{font-size:12px;color:var(--brand2);font-weight:800}
 .locicon{width:44px;height:44px;border-radius:14px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 44px}
 </style>
 </head>
@@ -114,6 +133,7 @@ h2{font-family:Nunito,sans-serif;font-weight:800}
 </nav>
 <div id="sheet" class="sheet hidden"><div class="sheet-bg" data-act="closeSheet"></div><div class="sheet-body"></div></div>
 <div id="toast"></div>
+<div id="viewer" class="viewer hidden"></div>
 
 <script>
 'use strict';
@@ -160,6 +180,15 @@ const store = {
   del(k) { delete mem[k]; try { localStorage.removeItem('gng_' + k); } catch (e) {} }
 };
 
+/* ---------- pending proof files (kept on the phone until uploaded) ---------- */
+const blobMem = {};
+const blobs = {
+  get(k) { if (blobMem[k]) return blobMem[k]; try { return localStorage.getItem('gng_blob_' + k); } catch (e) { return null; } },
+  set(k, v) { blobMem[k] = v; try { localStorage.setItem('gng_blob_' + k, v); return true; } catch (e) { return false; } },
+  del(k) { delete blobMem[k]; try { localStorage.removeItem('gng_blob_' + k); } catch (e) {} }
+};
+const proofUrlCache = {};   // drive id -> object URL (this session)
+
 /* ---------- state ---------- */
 const emptyData = () => Object.fromEntries(TABLES.map(t => [t, []]));
 let cfg = store.get('cfg', {apiUrl:'', pin:'', me:''});
@@ -198,53 +227,186 @@ function seedRows() {
   const B = 'Business Account', O = 'Own Money';
   // date, location, item, type, amount, paid using, paid by, notes
   const M = [
-    ['2026-07-15','office','Eco + 99speedmart (Lysa share)','Restock',46.8,O,'Lysa','Part of RM84.70 purchase'],
-    ['2026-07-15','office','Eco + 99speedmart (Meo share)','Restock',37.9,O,'Meo','Part of RM84.70 purchase'],
-    ['2026-07-16','office','KitKat','Restock',34,O,'Meo',''],
-    ['2026-07-24','office','Eco + 99speedmart','Restock',98.55,O,'Meo',''],
-    ['2026-07-26','tasik','Balji + Hausboom','Restock',173.16,O,'Meo',''],
-    ['2026-07-26','tasik','Sales collected 16/7–26/7','Sales Deposit',116.5,B,'',''],
-    ['2026-08-03','tasik','Mineral','Restock',25.8,B,'',''],
-    ['2026-08-04','tasik','Ice box','Expense',13.6,B,'',''],
-    ['2026-08-04','','Sales collected 28/7–4/8','Sales Deposit',228,B,'','Date fixed from 2026-04-08 in old Excel'],
-    ['2026-08-05','tasik','Mineral & Dutch Lady','Restock',46.8,B,'',''],
-    ['2026-08-06','office','Bika (Eco)','Restock',15.6,B,'',''],
-    ['2026-08-07','tasik','Week 1 – Ais','Expense',10.5,B,'',''],
-    ['2026-08-07','tasik','Week 1 – Ais','Expense',16.5,O,'Meo',''],
-    ['2026-08-08','tasik','Week 2 – Ais','Expense',10.5,B,'',''],
-    ['2026-08-08','tasik','Sales collected 5/8–10/8','Sales Deposit',346.5,B,'',''],
-    ['2026-08-09','tasik','Ais (Maybee)','Expense',3,B,'',''],
-    ['2026-08-10','','Account adjustment','Adjustment',1.2,B,'',''],
-    ['2026-08-10','tasik','2x Mineral, 1x 100plus','Restock',60.3,O,'Meo',''],
-    ['2026-08-10','tasik','Sales','Sales Deposit',40,B,'',''],
-    ['2026-08-10','office','Sales','Sales Deposit',25,B,'',''],
-    ['2026-08-10','','Ais','Expense',5,O,'Lysa',''],
-    ['2026-08-11','office','Sales 11/8','Sales Deposit',9,B,'',''],
-    ['2026-08-11','tasik','Sales 11/8','Sales Deposit',33,B,'',''],
-    ['2026-08-11','','Account adjustment','Adjustment',0.03,B,'',''],
-    ['2026-08-12','tasik','Ais','Expense',5,O,'Meo',''],
-    ['2026-08-12','office','Sales 12/8','Sales Deposit',15,B,'',''],
-    ['2026-08-12','tasik','Sales 12/8','Sales Deposit',62.5,B,'',''],
-    ['2026-08-13','office','Sales 13/8','Sales Deposit',29,B,'',''],
-    ['2026-08-13','tasik','Sales 13/8','Sales Deposit',19.5,B,'',''],
-    ['2026-08-13','tasik','Ais','Expense',5,O,'Lysa',''],
-    ['2026-08-13','tasik','2x 100plus, 3x Mineral','Restock',107.7,B,'',''],
-    ['2026-08-14','tasik','Ais','Expense',5,O,'Meo',''],
-    ['2026-08-14','','Card fee','Reimbursement',12,B,'Meo',''],
-    ['2026-08-14','tasik','Sales 14/8','Sales Deposit',33,B,'',''],
-    ['2026-08-14','office','Sales 14/8','Sales Deposit',13,B,'',''],
-    ['2026-08-15','tasik','1x Dutch Lady','Restock',33.9,B,'',''],
-    ['2026-08-15','tasik','Sales 15/8','Sales Deposit',204.5,B,'',''],
-    ['2026-08-15','tasik','Ais','Expense',3,B,'',''],
-    ['2026-08-16','tasik','Sales 16/8','Sales Deposit',113.5,B,'',''],
-    ['2026-08-16','tasik','2x 100plus','Restock',69,B,'',''],
-    ['2026-08-16','tasik','Ais','Expense',5,B,'',''],
-    ['2026-08-16','tasik','Ais','Expense',1.5,B,'',''],
-    ['2026-08-17','tasik','4x Boom+','Restock',147.36,B,'',''],
-    ['2026-08-17','office','Sales 17/8','Sales Deposit',14,B,'',''],
-    ['2026-08-17','tasik','Sales 17/8','Sales Deposit',35,B,'',''],
-    ['2026-08-18','office','Sales 18/8','Sales Deposit',3,B,'','']
-  ].map((r, i) => ({id:'old-' + (i+1), date:r[0], locationId:r[1], item:r[2], type:r[3], amount:r[4], paidUsing:r[5], paidBy:r[6], notes:r[7], visitId:'', deleted:false}));
+    ["2026-07-15", "office", "Eco + 99speedmart (Lysa share)", "Restock", 46.8, O, "Lysa", "Part of RM84.70 purchase"],
+    ["2026-07-15", "office", "Eco + 99speedmart (Meo share)", "Restock", 37.9, O, "Meo", "Part of RM84.70 purchase"],
+    ["2026-07-16", "office", "KITKAT", "Restock", 34, O, "Meo", ""],
+    ["2026-07-24", "office", "Eco + 99speedmart", "Restock", 98.55, O, "Meo", ""],
+    ["2026-07-26", "tasik", "Balji + Hausboom", "Restock", 173.16, O, "Meo", ""],
+    ["2026-07-26", "tasik", "Sales collected 16/7–26/7", "Sales Deposit", 116.5, B, "", "Money received into business account"],
+    ["2026-08-03", "tasik", "Mineral", "Restock", 25.8, B, "", ""],
+    ["2026-08-04", "tasik", "Ice Box", "Restock", 13.6, B, "", ""],
+    ["2026-08-04", "", "Sales collected 28/7–4/8", "Sales Deposit", 228, B, "", "Date fixed from 2026-04-08 in Excel"],
+    ["2026-08-05", "tasik", "Mineral & Dutch Lady", "Restock", 46.8, B, "", ""],
+    ["2026-08-06", "office", "Bika (Eco)", "Restock", 15.6, B, "", ""],
+    ["2026-08-07", "tasik", "Week 1 - Ais", "Restock", 10.5, B, "", ""],
+    ["2026-08-07", "tasik", "Week 1 - Ais", "Restock", 16.5, O, "Meo", ""],
+    ["2026-08-08", "tasik", "Week 2 - Ais", "Restock", 10.5, B, "", ""],
+    ["2026-08-08", "tasik", "Sales collected 5/8-10/8", "Sales Deposit", 346.5, B, "", ""],
+    ["2026-08-10", "", "Account Adjustment", "Adjustment", 1.2, B, "", ""],
+    ["2026-08-10", "tasik", "2x mineral, 1x 100plus", "Restock", 60.3, O, "Meo", ""],
+    ["2026-08-10", "tasik", "sales", "Sales Deposit", 40, B, "", ""],
+    ["2026-08-10", "office", "sales", "Sales Deposit", 25, B, "", ""],
+    ["2026-08-10", "", "ais", "Restock", 5, O, "Lysa", ""],
+    ["2026-08-11", "office", "sales 11/8", "Sales Deposit", 9, B, "", ""],
+    ["2026-08-11", "tasik", "sales 11/8", "Sales Deposit", 33, B, "", ""],
+    ["2026-08-11", "", "Account Adjustment", "Adjustment", 0.03, B, "", ""],
+    ["2026-08-12", "tasik", "ais", "Restock", 5, O, "Meo", ""],
+    ["2026-08-12", "office", "Sales 12/8", "Sales Deposit", 15, B, "", ""],
+    ["2026-08-12", "tasik", "sales 12/8", "Sales Deposit", 62.5, B, "", ""],
+    ["2026-08-13", "office", "sales 13/8", "Sales Deposit", 29, B, "", ""],
+    ["2026-08-13", "tasik", "sales 13/8", "Sales Deposit", 19.5, B, "", ""],
+    ["2026-08-13", "tasik", "Ais", "Restock", 5, O, "Lysa", ""],
+    ["2026-08-13", "tasik", "2x 100plus, 3x mineral", "Restock", 107.7, B, "", ""],
+    ["2026-08-14", "tasik", "ais", "Restock", 5, O, "Meo", ""],
+    ["2026-08-14", "", "Card Fee", "Reimbursement", 12, B, "Meo", ""],
+    ["2026-08-14", "tasik", "sales 14/8", "Sales Deposit", 33, B, "", ""],
+    ["2026-08-14", "office", "sales 14/8", "Sales Deposit", 13, B, "", ""],
+    ["2026-08-15", "tasik", "1x Dutch Lady", "Restock", 33.9, B, "", ""],
+    ["2026-08-15", "tasik", "sales 165/8", "Sales Deposit", 204.5, B, "", ""],
+    ["2026-08-15", "tasik", "ais", "Restock", 3, B, "", ""],
+    ["2026-08-16", "tasik", "sales 16/8", "Sales Deposit", 113.5, B, "", ""],
+    ["2026-08-16", "tasik", "2x 100plus", "Restock", 69, B, "", ""],
+    ["2026-08-16", "tasik", "Ais", "Restock", 5, B, "", ""],
+    ["2026-08-16", "tasik", "Ais", "Restock", 1.5, B, "", ""],
+    ["2026-08-09", "tasik", "Ais (Maybee)", "Restock", 3, B, "", ""],
+    ["2026-08-17", "tasik", "4x Boom+", "Restock", 147.36, B, "", ""],
+    ["2026-08-17", "tasik", "Ais", "Restock", 5, B, "", ""],
+    ["2026-08-17", "tasik", "Ais", "Restock", 4.5, B, "", ""],
+    ["2026-08-17", "office", "Sales 17/8", "Sales Deposit", 14, B, "", ""],
+    ["2026-08-17", "tasik", "Sales 17/8", "Sales Deposit", 35, B, "", ""],
+    ["2026-08-18", "office", "Sales 18/8", "Sales Deposit", 24, B, "", ""],
+    ["2026-08-18", "tasik", "Sales 18/8", "Sales Deposit", 50, B, "", ""],
+    ["2026-08-19", "tasik", "4x mineral, 2x 100plus", "Restock", 113.4, B, "", ""],
+    ["2026-08-19", "office", "Sales 19/8", "Sales Deposit", 19, B, "", ""],
+    ["2026-08-19", "tasik", "Sales 19/8", "Sales Deposit", 43, B, "", ""],
+    ["2026-08-20", "office", "Eco", "Restock", 70.2, B, "", ""],
+    ["2026-08-20", "office", "Eco", "Restock", 10.4, B, "", ""],
+    ["2026-08-21", "office", "sales 21/8", "Sales Deposit", 23, B, "", ""],
+    ["2026-08-21", "tasik", "sales 21/8", "Sales Deposit", 58, B, "", ""],
+    ["2026-08-21", "tasik", "Ais", "Restock", 5, B, "", ""],
+    ["2026-08-22", "tasik", "sales 22/8", "Sales Deposit", 156, B, "", ""],
+    ["2026-08-23", "tasik", "sales 23/8", "Sales Deposit", 248, B, "", ""],
+    ["2026-08-23", "tasik", "2x mineral, 2x 100plus, 1x DL", "Restock", 121.5, B, "", ""],
+    ["2026-08-23", "tasik", "Ais", "Restock", 5, B, "", ""],
+    ["2026-08-23", "", "Account Adjustment", "Adjustment", -4.37, B, "", ""],
+    ["2026-08-24", "office", "", "Sales Deposit", 9.5, B, "", ""],
+    ["2026-08-24", "tasik", "", "Sales Deposit", 119.5, B, "", ""],
+    ["2026-08-24", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-08-25", "tasik", "", "Sales Deposit", 108, B, "", ""],
+    ["2026-08-25", "", "Printing", "Restock", 15, O, "Lysa", ""],
+    ["2026-08-25", "tasik", "Ais", "Restock", 5, B, "", ""],
+    ["2026-08-26", "office", "", "Sales Deposit", 21, B, "", ""],
+    ["2026-08-26", "tasik", "", "Sales Deposit", 47, B, "", ""],
+    ["2026-08-27", "tasik", "6x boom+", "Restock", 168, B, "", ""],
+    ["2026-08-27", "", "Adh beli boom", "Sales Deposit", 16, B, "", ""],
+    ["2026-08-27", "tasik", "6x 100plus, 6x mineral, 1x DL", "Restock", 296.7, B, "", ""],
+    ["2026-08-27", "tasik", "Ais (25-26/8)", "Restock", 10, B, "", ""],
+    ["2026-08-28", "tasik", "Ais", "Restock", 5, B, "", ""],
+    ["2026-08-27", "office", "", "Sales Deposit", 7.5, B, "", ""],
+    ["2026-08-27", "tasik", "", "Sales Deposit", 34, B, "", ""],
+    ["2026-08-28", "office", "", "Sales Deposit", 9.5, B, "", ""],
+    ["2026-08-28", "tasik", "", "Sales Deposit", 34, B, "", ""],
+    ["2026-08-29", "tasik", "Ais", "Restock", 2.5, B, "", ""],
+    ["2026-08-29", "tasik", "", "Sales Deposit", 170, B, "", ""],
+    ["2026-08-29", "tasik", "2x mineral", "Restock", 27, B, "", ""],
+    ["2026-08-30", "tasik", "", "Sales Deposit", 185, B, "", ""],
+    ["2026-08-31", "tasik", "3x mineral, 2x DL", "Restock", 108.3, B, "", ""],
+    ["2026-08-31", "tasik", "", "Sales Deposit", 177.5, B, "", ""],
+    ["2026-08-30", "tasik", "Foam Box M1", "Restock", 21.8, B, "", ""],
+    ["2026-08-30", "tasik", "", "Sales Deposit", 40.5, B, "", ""],
+    ["2026-09-01", "tasik", "", "Restock", 4.5, B, "", ""],
+    ["2026-09-01", "tasik", "", "Sales Deposit", 36, B, "", ""],
+    ["2026-09-02", "tasik", "", "Sales Deposit", 134.5, B, "", ""],
+    ["2026-09-02", "tasik", "", "Restock", 4.5, B, "", ""],
+    ["2026-09-03", "tasik", "", "Sales Deposit", 24, B, "", ""],
+    ["2026-09-03", "office", "", "Sales Deposit", 19, B, "", ""],
+    ["2026-09-04", "tasik", "ais", "Restock", 2.5, B, "", ""],
+    ["2026-09-04", "tasik", "", "Sales Deposit", 59, B, "", ""],
+    ["2026-09-04", "office", "", "Sales Deposit", 3.5, B, "", ""],
+    ["2026-09-05", "tasik", "", "Sales Deposit", 202, B, "", ""],
+    ["2026-09-05", "tasik", "", "Restock", 4.5, B, "", ""],
+    ["2026-09-05", "", "", "Restock", 7, B, "", ""],
+    ["2026-09-06", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-09-06", "tasik", "10x mineral, 2x DL", "Restock", 196.8, B, "", ""],
+    ["2026-09-06", "tasik", "", "Sales Deposit", 180, B, "", ""],
+    ["2026-09-07", "tasik", "", "Sales Deposit", 65.5, B, "", ""],
+    ["2026-09-07", "office", "", "Sales Deposit", 3.5, B, "", ""],
+    ["2026-09-06", "tasik", "Ais", "Restock", 7, B, "", ""],
+    ["2026-09-07", "tasik", "Ais", "Restock", 5, B, "", ""],
+    ["2026-09-07", "tasik", "Ais", "Restock", 4.5, B, "", ""],
+    ["2026-09-08", "tasik", "", "Restock", 280, B, "", ""],
+    ["2026-09-07", "tasik", "", "Sales Deposit", 65.5, B, "", ""],
+    ["2026-09-07", "office", "", "Sales Deposit", 3.5, B, "", ""],
+    ["2026-09-08", "tasik", "", "Sales Deposit", 58, B, "", ""],
+    ["2026-09-09", "tasik", "", "Sales Deposit", 41, B, "", ""],
+    ["2026-09-10", "tasik", "", "Sales Deposit", 76.5, B, "", ""],
+    ["2026-09-11", "tasik", "", "Sales Deposit", 72, B, "", ""],
+    ["2026-09-11", "tasik", "Ais", "Restock", 14.5, B, "", ""],
+    ["2026-09-12", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-09-12", "tasik", "", "Restock", 7, B, "", ""],
+    ["2026-09-12", "tasik", "", "Sales Deposit", 165, B, "", ""],
+    ["2026-09-13", "tasik", "", "Sales Deposit", 76, B, "", ""],
+    ["2026-09-15", "tasik", "", "Sales Deposit", 62.5, B, "", ""],
+    ["2026-09-16", "tasik", "", "Sales Deposit", 82, B, "", ""],
+    ["2026-09-17", "tasik", "", "Sales Deposit", 42, B, "", ""],
+    ["2026-09-17", "tasik", "", "Restock", 9.2, B, "", ""],
+    ["2026-09-18", "tasik", "", "Sales Deposit", 40, B, "", ""],
+    ["2026-09-19", "tasik", "", "Sales Deposit", 63, B, "", ""],
+    ["2026-09-20", "tasik", "", "Sales Deposit", 71, B, "", ""],
+    ["2026-09-21", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-09-22", "tasik", "", "Sales Deposit", 59, B, "", ""],
+    ["2026-09-23", "tasik", "", "Sales Deposit", 77, B, "", ""],
+    ["2026-09-23", "tasik", "", "Sales Deposit", 5, B, "", ""],
+    ["2026-09-24", "tasik", "", "Sales Deposit", 57, B, "", ""],
+    ["2026-09-25", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-09-25", "tasik", "6x mineral, 4x 100plus", "Restock", 205, B, "", ""],
+    ["2026-09-25", "tasik", "", "Sales Deposit", 40, B, "", ""],
+    ["2026-09-26", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-09-26", "tasik", "", "Sales Deposit", 60.5, B, "", ""],
+    ["2026-09-27", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-09-27", "tasik", "", "Sales Deposit", 127.5, B, "", ""],
+    ["2026-09-28", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-09-28", "tasik", "", "Sales Deposit", 62, B, "", ""],
+    ["2026-09-29", "office", "", "Restock", 70.2, B, "", ""],
+    ["2026-09-29", "tasik", "", "Restock", 2.5, B, "", ""],
+    ["2026-09-29", "tasik", "", "Sales Deposit", 43, B, "", ""],
+    ["2026-09-30", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-10-01", "tasik", "", "Sales Deposit", 47, B, "", ""],
+    ["2026-10-02", "tasik", "", "Sales Deposit", 37, B, "", ""],
+    ["2026-09-30", "office", "", "Sales Deposit", 6, B, "", ""],
+    ["2026-10-05", "tasik", "", "Sales Deposit", 51, B, "", ""],
+    ["2026-10-03", "tasik", "", "Restock", 4.5, B, "", ""],
+    ["2026-10-01", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-10-03", "tasik", "", "Sales Deposit", 61, B, "", ""],
+    ["2026-10-04", "tasik", "", "Sales Deposit", 65, B, "", ""],
+    ["2026-10-05", "tasik", "", "Sales Deposit", 5, B, "", ""],
+    ["2026-10-05", "tasik", "", "Sales Deposit", 38.5, B, "", ""],
+    ["2026-10-06", "tasik", "", "Sales Deposit", 32, B, "", ""],
+    ["2026-10-06", "tasik", "Foam Box M1", "Restock", 10.9, B, "", ""],
+    ["2026-10-06", "tasik", "", "Restock", 214.9, B, "", ""],
+    ["2026-10-07", "office", "", "Sales Deposit", 10, B, "", ""],
+    ["2026-10-08", "tasik", "", "Restock", 7.5, B, "", ""],
+    ["2026-10-08", "office", "", "Sales Deposit", 1, B, "", ""],
+    ["2026-10-09", "office", "", "Sales Deposit", 10, B, "", ""],
+    ["2026-10-12", "office", "", "Sales Deposit", 5.5, B, "", ""],
+    ["2026-10-13", "office", "", "Sales Deposit", 3.5, B, "", ""],
+    ["2026-10-14", "office", "", "Sales Deposit", 6, B, "", ""],
+    ["2026-10-15", "office", "", "Sales Deposit", 2, B, "", ""],
+    ["2026-10-16", "office", "", "Sales Deposit", 3.5, B, "", ""],
+    ["2026-10-19", "", "Golf", "Restock", 16, B, "", ""],
+    ["2026-10-20", "office", "", "Sales Deposit", 6.5, B, "", ""],
+    ["2026-10-21", "office", "", "Sales Deposit", 2, B, "", ""],
+    ["2026-10-22", "office", "", "Sales Deposit", 5.5, B, "", ""],
+    ["2026-10-23", "office", "", "Sales Deposit", 3.5, B, "", ""],
+    ["2026-10-27", "tasik", "", "Sales Deposit", 12, B, "", ""],
+    ["2026-10-28", "office", "", "Sales Deposit", 5, B, "", ""],
+    ["2026-10-29", "office", "", "Sales Deposit", 5, B, "", ""],
+    ["2026-10-30", "office", "", "Sales Deposit", 2, B, "", ""],
+    ["2026-11-03", "tasik", "", "Restock", 5, B, "", ""],
+    ["2026-11-03", "tasik", "", "Sales Deposit", 16, B, "", ""],
+    ["2026-11-07", "tasik", "", "Sales Deposit", 61, B, "", ""],
+    ["2026-11-08", "", "", "Adjustment", -23.05, B, "", ""]
+  ].map((r, i) => ({id:'xl-' + String(i+1).padStart(4, '0'), date:r[0], locationId:r[1], item:r[2], type:r[3], amount:r[4], paidUsing:r[5], paidBy:r[6], notes:r[7], visitId:'', deleted:false}));
   const S = [{id:'businessName', value:'Nael GrabnGo'}, {id:'people', value:'Lysa,Meo'}];
   return {Locations:L, Products:P, Money:M, Settings:S};
 }
@@ -261,6 +423,10 @@ function normalizeRow(r) {
   BOOLS.forEach(k => { if (k in o) o[k] = (o[k] === true || o[k] === 'TRUE' || o[k] === 'true'); });
   if (o.date) o.date = String(o.date).slice(0, 10);
   if (o.id != null) o.id = String(o.id);
+  if ('proof' in o) {
+    if (typeof o.proof === 'string') { try { o.proof = o.proof ? JSON.parse(o.proof) : []; } catch (e) { o.proof = []; } }
+    if (!Array.isArray(o.proof)) o.proof = [];
+  }
   return o;
 }
 function upsertLocal(table, row) {
@@ -273,11 +439,21 @@ function saveMany(list) {
   list.forEach(([t, r]) => {
     const row = normalizeRow({...r, updatedAt: now});
     upsertLocal(t, row);
-    if (!isDemo()) queue.push({table: t, row});
+    if (!isDemo()) queue.push({table: t, row: forServer(row)});
   });
   persist(); setSync(); flush();
 }
 
+/** Copy of a row ready for the Google Sheet (proof list stored as text) */
+function forServer(row) {
+  const o = {...row};
+  if (Array.isArray(o.proof)) {
+    const list = o.proof.map(f => f.id ? {id: f.id, name: f.name, mime: f.mime} : {tmp: f.tmp, name: f.name, mime: f.mime, pending: true});
+    o.proof = list.length ? JSON.stringify(list) : '';
+    o.proofLinks = o.proof ? o.proofLinks || list.filter(f => f.id).map(f => 'https://drive.google.com/file/d/' + f.id + '/view').join('\n') : '';
+  }
+  return o;
+}
 const setting = (k, d) => { const r = data.Settings.find(s => s.id === k); return (r && r.value !== '') ? r.value : d; };
 const people = () => String(setting('people', 'Lysa,Meo')).split(',').map(s => s.trim()).filter(Boolean);
 const bizName = () => setting('businessName', 'Nael GrabnGo');
@@ -331,25 +507,57 @@ function setSync(state, err) {
   if (state) sync.state = state;
   if (err !== undefined) sync.error = err;
   const p = $('#syncPill'); if (!p) return;
+  const ups = queue.filter(o => o.kind === 'upload').length;
   if (isDemo()) p.textContent = 'Demo mode';
   else if (!navigator.onLine) p.textContent = queue.length ? `Offline · ${queue.length} to sync` : 'Offline';
-  else if (sync.state === 'syncing') p.textContent = 'Syncing…';
+  else if (sync.state === 'syncing') p.textContent = ups ? `Uploading ${ups} file${ups > 1 ? 's' : ''}…` : 'Syncing…';
   else if (sync.state === 'error') p.textContent = '⚠ Sync failed';
   else if (queue.length) p.textContent = `${queue.length} to sync`;
   else p.textContent = 'Synced ✓';
+}
+async function apiPost(body) {
+  const res = await fetch(cfg.apiUrl, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({key: cfg.pin, ...body})});
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'Server error');
+  return j;
+}
+/** After a file is uploaded, swap its temporary entry for the Drive file everywhere */
+function swapProof(rowId, tmp, file) {
+  const fix = list => (list || []).map(f => f.tmp === tmp ? file : f);
+  const local = data.Money.find(m => m.id === rowId);
+  if (local) local.proof = fix(local.proof);
+  queue.forEach(op => {
+    if (op.table === 'Money' && op.row && op.row.id === rowId && op.row.proof) {
+      let list = []; try { list = JSON.parse(op.row.proof); } catch (e) {}
+      op.row.proof = JSON.stringify(fix(list).map(f => f.id ? {id: f.id, name: f.name, mime: f.mime} : f));
+      op.row.proofLinks = fix(list).filter(f => f.id).map(f => 'https://drive.google.com/file/d/' + f.id + '/view').join('\n');
+    }
+  });
 }
 async function flush() {
   if (isDemo() || flushing || !queue.length) return;
   if (!navigator.onLine) return setSync('offline');
   flushing = true; setSync('syncing');
-  const batch = queue.slice(0, 150);
   try {
-    const res = await fetch(cfg.apiUrl, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({key: cfg.pin, ops: batch})});
-    const j = await res.json();
-    if (!j.ok) throw new Error(j.error || 'Server error');
-    queue = queue.slice(batch.length); persist();
+    while (queue.length) {
+      const op = queue[0];
+      if (op.kind === 'upload') {
+        const dataUrl = blobs.get(op.tmp);
+        if (dataUrl) {
+          const j = await apiPost({action: 'upload', name: op.name, mime: op.mime, data: dataUrl.split(',')[1]});
+          proofUrlCache[j.id] = dataUrl;
+          swapProof(op.rowId, op.tmp, {id: j.id, name: j.name || op.name, mime: op.mime});
+          blobs.del(op.tmp);
+        }
+        queue.shift(); persist(); setSync('syncing');
+        continue;
+      }
+      let n = 0;
+      while (n < queue.length && n < 150 && queue[n].kind !== 'upload') n++;
+      await apiPost({ops: queue.slice(0, n).map(o => ({table: o.table, row: o.row}))});
+      queue = queue.slice(n); persist();
+    }
     flushing = false;
-    if (queue.length) return flush();
     await pull();
   } catch (e) { flushing = false; setSync('error', e.message); }
 }
@@ -363,9 +571,18 @@ async function pull() {
     const j = await res.json();
     if (!j.ok) throw new Error(j.error || 'Server error');
     const d = emptyData();
-    TABLES.forEach(t => d[t] = (j.data[t] || []).map(normalizeRow).filter(r => r.id));
+    TABLES.forEach(t => {   // if an id appears twice in the sheet, the lower row wins
+      const byId = new Map();
+      (j.data[t] || []).map(normalizeRow).filter(r => r.id).forEach(r => byId.set(r.id, r));
+      d[t] = [...byId.values()];
+    });
     data = d;
-    queue.forEach(op => upsertLocal(op.table, op.row));   // keep unsynced changes visible
+    queue.forEach(op => { if (op.table && op.row) upsertLocal(op.table, normalizeRow(op.row)); });   // keep unsynced changes visible
+    // pending files still waiting: show them from the phone
+    queue.filter(op => op.kind === 'upload').forEach(op => {
+      const m = data.Money.find(x => x.id === op.rowId);
+      if (m && !(m.proof || []).some(f => f.tmp === op.tmp)) m.proof = [...(m.proof || []), {tmp: op.tmp, name: op.name, mime: op.mime}];
+    });
     sync.last = new Date().toISOString(); store.set('lastSync', sync.last);
     persist(); setSync('ok', ''); softRender();
   } catch (e) { setSync('error', e.message); }
@@ -379,7 +596,10 @@ function softRender() {
 /* ---------- UI plumbing ---------- */
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600); }
 function openSheet(html) { const s = $('#sheet'); $('.sheet-body', s).innerHTML = '<div class="grab"></div>' + html; s.classList.remove('hidden'); sheetOpen = true; $('.sheet-body', s).scrollTop = 0; }
-function closeSheet(noRender) { $('#sheet').classList.add('hidden'); sheetOpen = false; mf = pf = null; if (!noRender) render(); }
+function closeSheet(noRender) {
+  if (mf && mf._newTmps) mf._newTmps.forEach(t => blobs.del(t));
+  $('#sheet').classList.add('hidden'); sheetOpen = false; mf = pf = null; if (!noRender) render();
+}
 function go(r) { if (location.hash.slice(1) === r) { route = r; render(); } else location.hash = r; }
 function renderHeader() { $('#title').textContent = bizName(); setSync(); $$('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.r === route)); }
 function render() {
@@ -559,7 +779,7 @@ function moneyRow(m) {
   const isIn = m.type === 'Sales Deposit' || m.type === 'Capital In' || (m.type === 'Adjustment' && num(m.amount) >= 0);
   const sub = [fmtDate(m.date), m.locationId ? locName(m.locationId) : '', m.paidUsing === 'Own Money' ? 'paid by ' + (m.paidBy || '?') : (m.type === 'Reimbursement' ? 'to ' + (m.paidBy || '?') : '')].filter(Boolean).join(' · ');
   return `<div class="row tap" data-act="editMoney" data-id="${esc(m.id)}"><div class="locicon" style="width:38px;height:38px;flex-basis:38px;font-size:18px">${t.i}</div>
-    <div class="grow"><div class="ell"><b>${esc(m.item || m.type)}</b></div><div class="muted ell">${esc(sub)}</div></div>
+    <div class="grow"><div class="ell"><b>${esc(m.item || m.type)}</b>${(m.proof || []).length ? ` <span class="clip">📎${m.proof.length}</span>` : ''}</div><div class="muted ell">${esc(sub)}</div></div>
     <div class="right"><span class="${isIn ? 'in' : 'out'}">${isIn ? '+' : '−'}${rm(Math.abs(num(m.amount)))}</span><br><span class="muted" style="font-size:11px">${e.acct ? 'account' : e.owed ? 'own money' : ''}</span></div></div>`;
 }
 VIEWS.money = () => {
@@ -603,6 +823,7 @@ function moneyForm() {
     <div class="grid2"><div><label class="f">Date</label><input name="date" type="date" value="${esc(m.date)}"></div>
     <div><label class="f">Location</label><select name="locationId"><option value="">General</option>${allLocs().map(l => `<option value="${esc(l.id)}" ${l.id === m.locationId ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select></div></div>
     <label class="f">Notes</label><input name="notes" value="${esc(m.notes)}" placeholder="optional">
+    ${PROOF_TYPES.includes(m.type) || (m.proof || []).length ? `<label class="f">Proof — receipt photo or PDF ${(m.proof || []).length ? '(' + m.proof.length + ')' : '(optional)'}</label>${proofThumbs(m.proof, true)}` : ''}
     <div class="note" id="mEffect">${effectText(m)}</div>
     <div class="stack" style="margin-top:14px"><button type="button" class="btn block" data-act="saveMoney">Save</button>
     ${m._new ? '' : `<button type="button" class="btn danger block" data-act="delMoney">Delete</button>`}
@@ -614,6 +835,82 @@ function fixPay(m) {
   else m.paidUsing = 'Business Account';
   const needsPerson = ((m.type === 'Restock' || m.type === 'Expense') && m.paidUsing === 'Own Money') || m.type === 'Reimbursement' || m.type === 'Capital In';
   if (!needsPerson) m.paidBy = ''; else if (!m.paidBy) m.paidBy = me();
+}
+
+/* ----- Proof files (receipts) ----- */
+const PROOF_TYPES = ['Restock', 'Expense'];
+const isImg = f => /^image\//.test(f.mime || '');
+function proofThumbs(list, editable) {
+  const items = (list || []).map((f, i) => `<div class="pthumb" data-act="viewProof" data-i="${i}">
+      ${isImg(f) ? `<img alt="" data-pk="${esc(f.id || '')}" data-tmp="${esc(f.tmp || '')}">` : `<div class="doc"><b>📄</b>${esc(f.name || 'file')}</div>`}
+      ${f.tmp && !isDemo() ? '<span class="wait">waiting</span>' : ''}
+      ${editable ? `<button type="button" class="x" data-act="rmProof" data-i="${i}" aria-label="Remove">✕</button>` : ''}</div>`).join('');
+  const add = editable ? `<label class="padd"><span>📷</span>Add photo<br>or PDF<input type="file" id="proofInput" accept="image/*,application/pdf" multiple hidden></label>` : '';
+  return `<div class="proofs">${items}${add}</div>`;
+}
+async function proofUrl(f) {
+  if (f.tmp) return blobs.get(f.tmp);
+  if (!f.id) return null;
+  if (proofUrlCache[f.id]) return proofUrlCache[f.id];
+  if (isDemo() || !navigator.onLine) return null;
+  const res = await fetch(cfg.apiUrl + '?action=file&id=' + encodeURIComponent(f.id) + '&key=' + encodeURIComponent(cfg.pin));
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'Could not load file');
+  const bin = atob(j.data), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return (proofUrlCache[f.id] = URL.createObjectURL(new Blob([arr], {type: j.mime || f.mime})));
+}
+function loadThumbs(root) {
+  $$('img[data-pk],img[data-tmp]', root || document).forEach(async img => {
+    const f = {id: img.dataset.pk, tmp: img.dataset.tmp, mime: 'image/*'};
+    try { const u = await proofUrl(f); if (u) img.src = u; else img.replaceWith(Object.assign(document.createElement('div'), {className: 'doc', innerHTML: '<b>🖼️</b>offline'})); }
+    catch (e) { img.replaceWith(Object.assign(document.createElement('div'), {className: 'doc', innerHTML: '<b>⚠️</b>can\'t load'})); }
+  });
+}
+async function openViewer(f) {
+  const v = $('#viewer');
+  const drive = f.id ? `<a href="https://drive.google.com/file/d/${esc(f.id)}/view" target="_blank" rel="noopener">Drive</a>` : '';
+  v.innerHTML = `<div class="vbar"><div class="grow ell">${esc(f.name || 'Proof')}</div>${drive}<span id="vOpen"></span><button data-act="closeViewer">✕ Close</button></div><div class="vbody" data-act="closeViewerBg"><div class="docbox"><b>⏳</b>Loading…</div></div>`;
+  v.classList.remove('hidden');
+  try {
+    const u = await proofUrl(f);
+    const body = $('.vbody', v);
+    if (!u) { body.innerHTML = '<div class="docbox"><b>📶</b>Connect to the internet to view this file.</div>'; return; }
+    $('#vOpen').innerHTML = `<a href="${u}" target="_blank" rel="noopener" download="${esc(f.name || 'proof')}">Open</a>`;
+    body.innerHTML = isImg(f) ? `<img src="${u}" alt="">` : `<div class="docbox"><b>📄</b>${esc(f.name || 'PDF')}<br><br><a class="btn" href="${u}" target="_blank" rel="noopener" download="${esc(f.name || 'proof.pdf')}">Open PDF</a></div>`;
+  } catch (e) { $('.vbody', v).innerHTML = `<div class="docbox"><b>⚠️</b>${esc(e.message)}</div>`; }
+}
+const fileToDataUrl = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(file); });
+async function shrinkImage(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const max = 1600, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.8);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function addProofFiles(files) {
+  if (!mf) return;
+  readForm('mform', mf);
+  mf.proof = mf.proof || []; mf._newTmps = mf._newTmps || [];
+  for (const file of files) {
+    const pdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    const img = /^image\//.test(file.type);
+    if (!pdf && !img) { toast('Only photos or PDF files'); continue; }
+    if (file.size > 10 * 1024 * 1024) { toast(file.name + ' is bigger than 10 MB'); continue; }
+    let dataUrl, mime = pdf ? 'application/pdf' : 'image/jpeg', name = file.name || 'proof';
+    try {
+      if (img) { dataUrl = await shrinkImage(file); name = name.replace(/\.[^.]+$/, '') + '.jpg'; }
+      else dataUrl = await fileToDataUrl(file);
+    } catch (e) { dataUrl = await fileToDataUrl(file); mime = file.type || mime; }
+    const tmp = 'tmp-' + uid();
+    if (!blobs.set(tmp, dataUrl)) toast('Phone storage is full — keep the app open until it syncs');
+    mf.proof.push({tmp, name, mime});
+    mf._newTmps.push(tmp);
+  }
+  openSheet(moneyForm()); loadThumbs($('#sheet'));
 }
 
 /* ----- Products ----- */
@@ -661,7 +958,7 @@ VIEWS.more = () => {
   const empty = !isDemo() && !data.Products.length && !data.Money.length && sync.last;
   return `
   <div class="card"><h3>👤 Who is using this phone?</h3><div class="chips">${people().map(p => `<button class="chip ${p === cfg.me ? 'on' : ''}" data-act="setMe" data-k="${esc(p)}">${esc(p)}</button>`).join('')}</div></div>
-  ${empty ? `<div class="card" style="border-color:var(--brand2)"><h3>📥 Your Google Sheet is empty</h3><p class="muted">Import your old Excel records (11 products, 3 locations and 46 money records up to 18 Aug).</p><button class="btn block" data-act="importSeed">Import old Excel records</button></div>` : ''}
+  ${empty ? `<div class="card" style="border-color:var(--brand2)"><h3>📥 Your Google Sheet is empty</h3><p class="muted">Import your Excel records (11 products, 3 locations and 179 money records up to 8 Nov).</p><button class="btn block" data-act="importSeed">Import old Excel records</button></div>` : ''}
   <div class="card"><h3>🔗 Connection to Google Sheet</h3>
     <p class="muted">${isDemo() ? 'You are in <b>demo mode</b>: data is saved only on this phone. Connect to share with your partner.' : 'Connected. Last sync: ' + (sync.last ? new Date(sync.last).toLocaleString('en-GB') : 'never')}${sync.error ? '<br><span class="out">' + esc(sync.error) + '</span>' : ''}</p>
     <label class="f">Web app URL (from Apps Script)</label><input id="cUrl" value="${esc(cfg.apiUrl)}" placeholder="https://script.google.com/macros/s/…/exec">
@@ -691,13 +988,22 @@ VIEWS.more = () => {
     <li><b>Pay partners back</b> with Reimbursement when the account has enough money.</li>
     <li><b>Watch the “paid %”</b> on Home. If a location drops below ~85%, move the box, add a clearer QR/price poster, or sell only higher-margin items there.</li>
   </ol></div>
-  <img class="foot-logo" src="logo.png" alt=""><p class="muted" style="text-align:center">Nael GrabnGo app · v1.1</p>`;
+  <img class="foot-logo" src="logo.png" alt=""><p class="muted" style="text-align:center">Nael GrabnGo app · v1.2</p>`;
 };
 
 /* =================== ACTIONS =================== */
 const ACT = {
   syncNow() { if (isDemo()) { go('more'); toast('Connect a Google Sheet in More to sync'); return; } flush(); pull(); },
   closeSheet() { closeSheet(); },
+  rmProof(t, e) {
+    e.stopPropagation(); readForm('mform', mf);
+    const f = mf.proof[num(t.dataset.i)];
+    if (f && f.id && !confirm('Remove this proof from the record? (The file stays in your Google Drive folder.)')) return;
+    mf.proof.splice(num(t.dataset.i), 1); openSheet(moneyForm()); loadThumbs($('#sheet'));
+  },
+  viewProof(t) { const f = (mf && mf.proof || [])[num(t.dataset.i)]; if (f) openViewer(f); },
+  closeViewer() { $('#viewer').classList.add('hidden'); $('#viewer').innerHTML = ''; },
+  closeViewerBg(t, e) { if (e.target === t) ACT.closeViewer(); },
   startCheck(t) {
     const id = t.dataset.id;
     if (chk.loc !== id) { chk = newCheck(id); saveDraft(); }
@@ -742,18 +1048,24 @@ const ACT = {
     data.Money.filter(m => m.visitId === id).forEach(m => ops.push(['Money', {...m, deleted: true}]));
     saveMany(ops); closeSheet(); toast('Deleted');
   },
-  addMoney() { mf = {_new: true, id: uid(), date: today(), type: 'Restock', amount: '', item: '', locationId: '', paidUsing: 'Business Account', paidBy: '', notes: '', visitId: '', deleted: false}; openSheet(moneyForm()); },
-  editMoney(t) { const m = data.Money.find(x => x.id === t.dataset.id); if (!m) return; mf = {...m}; openSheet(moneyForm()); },
-  mType(t) { readForm('mform', mf); mf.type = t.dataset.k; fixPay(mf); openSheet(moneyForm()); },
-  mPay(t) { readForm('mform', mf); mf.paidUsing = t.dataset.k; fixPay(mf); openSheet(moneyForm()); },
-  mWho(t) { readForm('mform', mf); mf.paidBy = t.dataset.k; openSheet(moneyForm()); },
+  addMoney() { mf = {_new: true, id: uid(), date: today(), type: 'Restock', amount: '', item: '', locationId: '', paidUsing: 'Business Account', paidBy: '', notes: '', visitId: '', deleted: false, proof: []}; openSheet(moneyForm()); },
+  editMoney(t) { const m = data.Money.find(x => x.id === t.dataset.id); if (!m) return; mf = {...m, proof: [...(m.proof || [])]}; openSheet(moneyForm()); loadThumbs($('#sheet')); },
+  mType(t) { readForm('mform', mf); mf.type = t.dataset.k; fixPay(mf); openSheet(moneyForm()); loadThumbs($('#sheet')); },
+  mPay(t) { readForm('mform', mf); mf.paidUsing = t.dataset.k; fixPay(mf); openSheet(moneyForm()); loadThumbs($('#sheet')); },
+  mWho(t) { readForm('mform', mf); mf.paidBy = t.dataset.k; openSheet(moneyForm()); loadThumbs($('#sheet')); },
   saveMoney() {
     readForm('mform', mf); fixPay(mf);
     const a = num(mf.amount);
     if (!a || (a < 0 && mf.type !== 'Adjustment')) return toast('Enter a valid amount');
     if (!mf.date) return toast('Pick a date');
-    const row = {...mf, amount: round(a)}; delete row._new;
-    save('Money', row); closeSheet(); toast('Saved ✓');
+    const row = {...mf, amount: round(a)}; delete row._new; delete row._newTmps;
+    // queue new files first so they upload before the record is saved
+    const pending = (row.proof || []).filter(f => f.tmp && (mf._newTmps || []).includes(f.tmp));
+    if (!isDemo()) pending.forEach(f => queue.push({kind: 'upload', rowId: row.id, tmp: f.tmp, name: f.name, mime: f.mime}));
+    // forget files that were added then removed before saving
+    (mf._newTmps || []).filter(t => !(row.proof || []).some(f => f.tmp === t)).forEach(t => blobs.del(t));
+    mf._newTmps = [];
+    save('Money', row); closeSheet(); toast(pending.length ? `Saved ✓ uploading ${pending.length} file${pending.length > 1 ? 's' : ''}…` : 'Saved ✓');
   },
   delMoney() { if (!confirm('Delete this record?')) return; const row = {...mf, deleted: true}; delete row._new; save('Money', row); closeSheet(); toast('Deleted'); },
   addProd() { pf = {_new: true, id: uid(), sku: '', name: '', category: 'Drink', packQty: '', packCost: '', extraCost: '', price: '', reorderLevel: 5, active: true, deleted: false}; openSheet(prodForm()); updatePCalc(); },
@@ -817,6 +1129,7 @@ function onLineInput(el) {
 
 /* ---------- events ---------- */
 document.addEventListener('click', e => {
+  if (e.target.closest('a[href]')) return;   // let real links (Open / Drive) work
   const t = e.target.closest('[data-act]');
   if (t && ACT[t.dataset.act]) { e.preventDefault(); ACT[t.dataset.act](t, e); }
 });
@@ -829,8 +1142,10 @@ function onInput(e) {
   if (el.closest('#pform') && pf) updatePCalc();
 }
 document.addEventListener('input', onInput);
-document.addEventListener('change', e => { if (e.target.dataset.mf || e.target.type === 'checkbox' || e.target.tagName === 'SELECT') onInput(e); });
+document.addEventListener('change', e => {
+  if (e.target.id === 'proofInput') { const files = [...e.target.files]; e.target.value = ''; if (files.length) addProofFiles(files); return; } if (e.target.dataset.mf || e.target.type === 'checkbox' || e.target.tagName === 'SELECT') onInput(e); });
 window.addEventListener('hashchange', () => { route = location.hash.slice(1) || 'home'; if (sheetOpen) closeSheet(true); render(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#viewer').classList.contains('hidden')) ACT.closeViewer(); });
 window.addEventListener('online', () => { setSync(); flush(); pull(); });
 window.addEventListener('offline', () => setSync());
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pull(); });

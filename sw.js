@@ -1,6 +1,6 @@
 // Offline support: keeps the app working with no signal (e.g. at the lakeside).
 // Bump the version number whenever you change index.html so phones get the update.
-const CACHE = 'grabngo-v3';
+const CACHE = 'grabngo-v4';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './logo.png'];
 
 self.addEventListener('install', e => {
