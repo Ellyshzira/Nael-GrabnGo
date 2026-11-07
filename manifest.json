@@ -1,7 +1,7 @@
 {
-  "name": "Nael Snacks Bar",
-  "short_name": "Nael",
-  "description": "Stock and cash-flow tracker for Nael Snacks Bar",
+  "name": "Nael GrabnGo",
+  "short_name": "GrabnGo",
+  "description": "Stock and cash-flow tracker for Nael GrabnGo",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

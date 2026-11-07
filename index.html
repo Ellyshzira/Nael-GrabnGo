@@ -6,14 +6,14 @@
 <meta name="theme-color" content="#441d0b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Nael">
+<meta name="apple-mobile-web-app-title" content="GrabnGo">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
-<title>Nael Snacks Bar</title>
+<title>Nael GrabnGo</title>
 <style>
 :root{--bg:#fdf6ec;--card:#fffaf3;--ink:#3b1a0a;--mute:#8a6650;--line:#f0dcc0;--brand:#441d0b;--brand2:#a8693d;--accent:#dc9957;--tan:#ecbf8e;--soft:#f8e6cc;--onbrand:#fcebd4;--good:#3f7a2e;--goodbg:#e4f0d6;--warn:#a85d0c;--warnbg:#fde9c8;--bad:#b3261e;--badbg:#fbe0dc;--r:18px;--ring:rgba(168,105,61,.25)}
 @media (prefers-color-scheme:dark){:root{--bg:#1a100a;--card:#26170e;--ink:#fcebd4;--mute:#c4a58a;--line:#3e2a1c;--brand:#dc9957;--brand2:#a8693d;--soft:#3a2416;--onbrand:#2a1007;--goodbg:#1e3016;--warnbg:#3d2a0e;--badbg:#3e1712;--good:#9ccc7a;--warn:#f0b85c;--bad:#f28b82}}
@@ -103,7 +103,7 @@ h2{font-family:Nunito,sans-serif;font-weight:800}
 </style>
 </head>
 <body>
-<header><img src="logo.png" alt=""><h1><span id="title">Nael Snacks Bar</span><small>Good snacks, good day</small></h1><button class="pill" id="syncPill" data-act="syncNow">…</button></header>
+<header><img src="logo.png" alt=""><h1><span id="title">Nael GrabnGo</span><small>Grab. Go. Enjoy.</small></h1><button class="pill" id="syncPill" data-act="syncNow">…</button></header>
 <main id="view"></main>
 <nav id="tabs">
   <a href="#home" data-r="home"><span>🏠</span>Home</a>
@@ -245,7 +245,7 @@ function seedRows() {
     ['2026-08-17','tasik','Sales 17/8','Sales Deposit',35,B,'',''],
     ['2026-08-18','office','Sales 18/8','Sales Deposit',3,B,'','']
   ].map((r, i) => ({id:'old-' + (i+1), date:r[0], locationId:r[1], item:r[2], type:r[3], amount:r[4], paidUsing:r[5], paidBy:r[6], notes:r[7], visitId:'', deleted:false}));
-  const S = [{id:'businessName', value:'Nael Snacks Bar'}, {id:'people', value:'Lysa,Meo'}];
+  const S = [{id:'businessName', value:'Nael GrabnGo'}, {id:'people', value:'Lysa,Meo'}];
   return {Locations:L, Products:P, Money:M, Settings:S};
 }
 function loadSeedLocal() {
@@ -280,7 +280,7 @@ function saveMany(list) {
 
 const setting = (k, d) => { const r = data.Settings.find(s => s.id === k); return (r && r.value !== '') ? r.value : d; };
 const people = () => String(setting('people', 'Lysa,Meo')).split(',').map(s => s.trim()).filter(Boolean);
-const bizName = () => setting('businessName', 'Nael Snacks Bar');
+const bizName = () => setting('businessName', 'Nael GrabnGo');
 const me = () => cfg.me || people()[0] || '';
 const allLocs = () => data.Locations.filter(l => !l.deleted);
 const activeLocs = () => allLocs().filter(l => l.active !== false);
@@ -691,7 +691,7 @@ VIEWS.more = () => {
     <li><b>Pay partners back</b> with Reimbursement when the account has enough money.</li>
     <li><b>Watch the “paid %”</b> on Home. If a location drops below ~85%, move the box, add a clearer QR/price poster, or sell only higher-margin items there.</li>
   </ol></div>
-  <img class="foot-logo" src="logo.png" alt=""><p class="muted" style="text-align:center">Nael Snacks Bar app · v1.1</p>`;
+  <img class="foot-logo" src="logo.png" alt=""><p class="muted" style="text-align:center">Nael GrabnGo app · v1.1</p>`;
 };
 
 /* =================== ACTIONS =================== */
@@ -783,7 +783,7 @@ const ACT = {
     saveMany(ops); toast('Importing ' + ops.length + ' records…'); render();
   },
   saveBiz() {
-    const name = $('#sBiz').value.trim() || 'Nael Snacks Bar';
+    const name = $('#sBiz').value.trim() || 'Nael GrabnGo';
     const ppl = $('#sPeople').value.split(',').map(s => s.trim()).filter(Boolean).join(',');
     saveMany([['Settings', {id: 'businessName', value: name}], ['Settings', {id: 'people', value: ppl || 'Lysa,Meo'}]]);
     render(); toast('Saved ✓');
